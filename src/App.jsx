@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { supabase } from './lib/supabase.js';
 import {
   ArrowLeft,
   Heart,
@@ -286,19 +287,6 @@ const fallbackGifts = [
   },
 ];
 
-const fallbackProfile = {
-  name: 'Егор',
-  email: 'egor@example.ru',
-  phone: '+7 999 123-45-67',
-  city: 'Новосибирск',
-  address: 'ул. Чайная, 7',
-  orders: [
-    { id: '#CP-02481', date: '18.09.2026', status: 'Оплачен', total: 3370 },
-    { id: '#CP-02394', date: '03.09.2026', status: 'Доставлен', total: 2490 },
-    { id: '#CP-02331', date: '25.08.2026', status: 'Доставлен', total: 1990 },
-  ],
-};
-
 const promoRules = {
   TEA15: { label: 'Скидка 15%', type: 'percent', value: 15 },
   GIFT20: { label: 'Скидка 20%', type: 'percent', value: 20 },
@@ -413,22 +401,32 @@ const fallbackAbout = {
   ],
 };
 
+function readStoredArray(key) {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(key) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 function money(value) {
   return `${currency.format(value)} ₽`;
 }
 
-function createCart(itemsInput = [], promoCode = '') {
+function createCart(itemsInput = [], promoCode = '', catalog = fallbackProducts) {
   const items = [
     ...itemsInput,
   ]
     .map((line) => ({
       ...line,
-      product: fallbackProducts.find((product) => product.id === line.productId),
+      product: catalog.find((product) => product.id === line.productId)
+        || fallbackProducts.find((product) => product.id === line.productId),
     }))
     .filter((item) => item.product && item.quantity > 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const promo = promoRules[promoCode.toUpperCase()];
-  const baseDiscount = subtotal >= 3000 ? 750 : 0;
+  const baseDiscount = 0; // Discounts are validated by Supabase during checkout.
   const promoDiscount = promo?.type === 'percent' ? Math.round((subtotal * promo.value) / 100) : 0;
   return {
     items,
@@ -444,11 +442,386 @@ function createCart(itemsInput = [], promoCode = '') {
 }
 
 function App() {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [cart, setCart] = useState(createCart);
-  const [profile, setProfile] = useState(fallbackProfile);
-  const [favorites, setFavorites] = useState(['teapot-1173', 'te-guan-in-orhideya']);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState('');
+  const [session, setSession] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState('');
+  const [favorites, setFavorites] = useState([]);
+  const [favoritesLoadedFor, setFavoritesLoadedFor] = useState(null);
+  const [cartLoadedFor, setCartLoadedFor] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [orderError, setOrderError] = useState('');
+  const cartSyncRef = useRef(Promise.resolve());
+  const favoritesSyncRef = useRef(Promise.resolve());
+  const ownerKey = session?.user?.id ?? 'guest';
+
+  useEffect(() => {
+    if (!supabase) {
+      setAuthLoading(false);
+      return undefined;
+    }
+
+    let alive = true;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, nextSession) => {
+        if (!alive) return;
+        setSession(nextSession);
+        setAuthLoading(false);
+      }
+    );
+
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!alive) return;
+      if (error) console.error('[Auth] Не удалось получить сессию:', error);
+      setSession(data?.session ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => {
+      alive = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProducts() {
+      if (!supabase) {
+        setProductsError('Supabase не настроен. Проверь .env и сборку.');
+        setProductsLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, slug, name, description, price, unit_label, categories(name), product_images(storage_path, alt_text, sort_order, is_primary), product_taste_tags(taste_tags(name))')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error('[Supabase] Ошибка загрузки каталога:', error);
+        setProductsError(error.message);
+        setProducts([]);
+        setProductsLoading(false);
+        return;
+      }
+
+      const mappedProducts = (data ?? []).map((row) => {
+        const images = [...(row.product_images ?? [])].sort(
+          (a, b) =>
+            Number(Boolean(b.is_primary)) - Number(Boolean(a.is_primary))
+            || (a.sort_order ?? 0) - (b.sort_order ?? 0)
+        );
+        const tastes = (row.product_taste_tags ?? [])
+          .map((item) => item.taste_tags?.name)
+          .filter(Boolean);
+
+        return {
+          id: row.slug,
+          dbId: row.id,
+          slug: row.slug,
+          name: row.name,
+          category: row.categories?.name ?? 'Без категории',
+          taste: tastes[0] ?? 'нейтральный',
+          tastes,
+          price: Number(row.price),
+          weight: row.unit_label ?? '',
+          stock: true,
+          image: images[0]?.storage_path ?? asset('hero-tea.jpg'),
+          description: row.description ?? '',
+          details: row.description ?? '',
+        };
+      });
+
+      setProducts(mappedProducts);
+      setProductsError('');
+      setProductsLoading(false);
+      console.log('[Supabase] Каталог загружен:', mappedProducts.length, 'товаров', mappedProducts);
+    }
+
+    loadProducts();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Profile rows are optional. Signing up never inserts a row into public.profiles.
+  useEffect(() => {
+    if (authLoading) return undefined;
+
+    if (!session?.user?.id) {
+      setProfile(null);
+      setProfileError('');
+      setProfileLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setProfileLoading(true);
+
+    supabase
+      .from('profiles')
+      .select('user_id, display_name, phone, avatar_path, created_at, updated_at')
+      .eq('user_id', session.user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          console.error('[Supabase] Ошибка загрузки профиля:', error);
+          setProfileError(error.message);
+          setProfile(null);
+        } else {
+          setProfile(data ?? null);
+          setProfileError('');
+        }
+        setProfileLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [session?.user?.id, authLoading]);
+
+  useEffect(() => {
+    if (authLoading) return undefined;
+
+    let cancelled = false;
+    setCartLoadedFor(null);
+
+    async function loadCart() {
+      const guestLines = readStoredArray('tearoad-guest-cart')
+        .filter((line) => line && typeof line.productId === 'string' && Number(line.quantity) > 0);
+
+      if (!session?.user?.id) {
+        if (!cancelled) {
+          setCart(createCart(guestLines, '', products.length ? products : fallbackProducts));
+          setCartLoadedFor('guest');
+        }
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('carts')
+        .select('id, cart_items(quantity, products(slug))')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      const savedLines = (data?.cart_items ?? [])
+        .map((line) => ({
+          productId: line.products?.slug,
+          quantity: Number(line.quantity),
+        }))
+        .filter((line) => line.productId && line.quantity > 0);
+
+      const lines = savedLines.length ? savedLines : guestLines;
+      if (!cancelled) {
+        setCart(createCart(lines, '', products.length ? products : fallbackProducts));
+        setCartLoadedFor(session.user.id);
+      }
+    }
+
+    loadCart().catch((error) => {
+      console.error('[Supabase] Не удалось загрузить корзину; синхронизация остановлена:', error);
+    });
+
+    return () => { cancelled = true; };
+  }, [authLoading, session?.user?.id]);
+
+  useEffect(() => {
+    if (cartLoadedFor !== ownerKey) return;
+
+    const lines = cart.items.map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+    }));
+
+    if (!session?.user?.id) {
+      window.localStorage.setItem('tearoad-guest-cart', JSON.stringify(lines));
+      return;
+    }
+
+    const userId = session.user.id;
+    cartSyncRef.current = cartSyncRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        const { data: cartRow, error: cartError } = await supabase
+          .from('carts')
+          .upsert({ user_id: userId }, { onConflict: 'user_id' })
+          .select('id')
+          .single();
+        if (cartError) throw cartError;
+
+        const slugs = lines.map((line) => line.productId);
+        let dbProducts = [];
+        if (slugs.length) {
+          const { data, error } = await supabase
+            .from('products')
+            .select('id, slug')
+            .in('slug', slugs);
+          if (error) throw error;
+          dbProducts = data ?? [];
+        }
+
+        const { error: deleteError } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('cart_id', cartRow.id);
+        if (deleteError) throw deleteError;
+
+        const bySlug = new Map(dbProducts.map((product) => [product.slug, product.id]));
+        const rows = lines
+          .filter((line) => bySlug.has(line.productId))
+          .map((line) => ({
+            cart_id: cartRow.id,
+            product_id: bySlug.get(line.productId),
+            quantity: line.quantity,
+          }));
+
+        if (rows.length) {
+          const { error } = await supabase.from('cart_items').insert(rows);
+          if (error) throw error;
+        }
+        window.localStorage.removeItem('tearoad-guest-cart');
+        console.log('[Supabase] Корзина сохранена:', rows.length, 'позиций');
+      })
+      .catch((error) => console.error('[Supabase] Ошибка сохранения корзины:', error));
+  }, [cart, cartLoadedFor, ownerKey, session?.user?.id]);
+
+  useEffect(() => {
+    if (authLoading) return undefined;
+
+    let cancelled = false;
+    setFavoritesLoadedFor(null);
+
+    async function loadFavorites() {
+      const guestFavorites = readStoredArray('tearoad-guest-favorites')
+        .filter((slug) => typeof slug === 'string');
+
+      if (!session?.user?.id) {
+        if (!cancelled) {
+          setFavorites(guestFavorites);
+          setFavoritesLoadedFor('guest');
+        }
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('products(slug)')
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      const saved = (data ?? []).map((row) => row.products?.slug).filter(Boolean);
+      const merged = [...new Set([...saved, ...guestFavorites])];
+      if (!cancelled) {
+        setFavorites(merged);
+        setFavoritesLoadedFor(session.user.id);
+      }
+    }
+
+    loadFavorites().catch((error) => {
+      console.error('[Supabase] Не удалось загрузить избранное; синхронизация остановлена:', error);
+    });
+
+    return () => { cancelled = true; };
+  }, [authLoading, session?.user?.id]);
+
+  useEffect(() => {
+    if (favoritesLoadedFor !== ownerKey) return;
+
+    if (!session?.user?.id) {
+      window.localStorage.setItem('tearoad-guest-favorites', JSON.stringify(favorites));
+      return;
+    }
+
+    const userId = session.user.id;
+    favoritesSyncRef.current = favoritesSyncRef.current
+      .catch(() => undefined)
+      .then(async () => {
+        const { error: deleteError } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', userId);
+        if (deleteError) throw deleteError;
+
+        let dbProducts = [];
+        if (favorites.length) {
+          const { data, error } = await supabase
+            .from('products')
+            .select('id, slug')
+            .in('slug', favorites);
+          if (error) throw error;
+          dbProducts = data ?? [];
+        }
+
+        const rows = dbProducts.map((product) => ({
+          user_id: userId,
+          product_id: product.id,
+        }));
+
+        if (rows.length) {
+          const { error } = await supabase.from('favorites').insert(rows);
+          if (error) throw error;
+        }
+        window.localStorage.removeItem('tearoad-guest-favorites');
+        console.log('[Supabase] Избранное сохранено:', rows.length, 'товаров');
+      })
+      .catch((error) => console.error('[Supabase] Ошибка сохранения избранного:', error));
+  }, [favorites, favoritesLoadedFor, ownerKey, session?.user?.id]);
+
+  useEffect(() => {
+    if (!products.length) return;
+    setCart((current) => createCart(
+      current.items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
+      current.promoCode,
+      products
+    ));
+  }, [products]);
+
+  const fetchOrders = useCallback(async (userId) => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('id, order_number, status_code, created_at, delivery_cost_snapshot, discount_amount_snapshot, order_statuses(name), order_items(product_name_snapshot, unit_price_snapshot, quantity)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[Supabase] Ошибка загрузки заказов:', error);
+      return;
+    }
+
+    setOrders((data ?? []).map((order) => {
+      const subtotal = (order.order_items ?? []).reduce(
+        (sum, item) => sum + Number(item.unit_price_snapshot) * Number(item.quantity),
+        0
+      );
+      return {
+        id: order.id,
+        number: order.order_number,
+        date: new Date(order.created_at).toLocaleDateString('ru-RU'),
+        status: order.order_statuses?.name ?? order.status_code,
+        total: subtotal + Number(order.delivery_cost_snapshot) - Number(order.discount_amount_snapshot),
+      };
+    }));
+  }, []);
+
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setOrders([]);
+      return;
+    }
+    fetchOrders(session.user.id);
+  }, [session?.user?.id, fetchOrders]);
 
   function addToCart(productId) {
     const lines = cart.items.map((item) => ({
@@ -456,67 +829,121 @@ function App() {
       quantity: item.quantity,
     }));
     const line = lines.find((item) => item.productId === productId);
-    if (line) {
-      line.quantity += 1;
-    } else {
-      lines.push({ productId, quantity: 1 });
-    }
-    setCart(createCart(lines, cart.promoCode));
+    if (line) line.quantity = Math.min(99, line.quantity + 1);
+    else lines.push({ productId, quantity: 1 });
+    setCart(createCart(lines, cart.promoCode, products.length ? products : fallbackProducts));
   }
 
   function changeQuantity(productId, quantity) {
     const lines = cart.items
       .map((item) => ({
         productId: item.productId,
-        quantity: item.productId === productId ? Math.max(0, quantity) : item.quantity,
+        quantity: item.productId === productId ? Math.max(0, Math.min(99, quantity)) : item.quantity,
       }))
       .filter((item) => item.quantity > 0);
-    setCart(createCart(lines, cart.promoCode));
+    setCart(createCart(lines, cart.promoCode, products.length ? products : fallbackProducts));
   }
 
   function applyPromo(code) {
     const normalized = code.trim().toUpperCase();
-    if (!promoRules[normalized]) {
-      return false;
-    }
+    if (!promoRules[normalized]) return false;
     const lines = cart.items.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
     }));
-    setCart(createCart(lines, normalized));
+    setCart(createCart(lines, normalized, products.length ? products : fallbackProducts));
     return true;
   }
 
-  function submitOrder(event) {
-    event.preventDefault();
-    const order = {
-      id: `#CP-${Math.floor(10000 + Math.random() * 89999)}`,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'Оплачен',
-      total: cart.summary.total,
+  async function saveProfile(nextProfile) {
+    if (!session?.user?.id) throw new Error('Войдите в аккаунт, чтобы сохранить профиль.');
+
+    const payload = {
+      user_id: session.user.id,
+      display_name: String(nextProfile.display_name ?? '').trim(),
+      phone: String(nextProfile.phone ?? '').trim() || null,
+      updated_at: new Date().toISOString(),
     };
-    setProfile((current) => ({ ...current, orders: [order, ...(current?.orders || [])] }));
-    setCart(createCart([]));
+
+    if (!payload.display_name) throw new Error('Введите имя.');
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(payload, { onConflict: 'user_id' })
+      .select('user_id, display_name, phone, avatar_path, created_at, updated_at')
+      .single();
+
+    if (error) throw error;
+    setProfile(data);
+    setProfileError('');
+    return data;
   }
 
-  function updateProfile(nextProfile) {
-    setProfile((current) => ({ ...current, ...nextProfile }));
+  async function signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('[Auth] Ошибка выхода:', error);
+      return;
+    }
+    navigate('/');
+  }
+
+  async function submitOrder(event, deliveryMethodCode) {
+    event.preventDefault();
+    setOrderError('');
+
+    if (!session?.user?.id) {
+      setOrderError('Для оформления заказа сначала войдите в аккаунт.');
+      navigate('/login');
+      return false;
+    }
+
+    if (!cart.items.length) {
+      setOrderError('Корзина пуста.');
+      return false;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const items = cart.items.map((item) => ({
+      slug: item.product.slug ?? item.productId,
+      quantity: item.quantity,
+    }));
+
+    const { error } = await supabase.rpc('place_order', {
+      p_customer_name: String(formData.get('name') ?? '').trim(),
+      p_customer_email: session.user.email,
+      p_customer_phone: String(formData.get('phone') ?? '').trim(),
+      p_city: String(formData.get('city') ?? '').trim(),
+      p_address_line: String(formData.get('address') ?? '').trim(),
+      p_delivery_method_code: deliveryMethodCode,
+      p_items: items,
+      p_promotion_code: cart.promoCode || null,
+    });
+
+    if (error) {
+      console.error('[Supabase] Ошибка оформления заказа:', error);
+      setOrderError(error.message);
+      return false;
+    }
+
+    setCart(createCart([], '', products.length ? products : fallbackProducts));
+    await fetchOrders(session.user.id);
+    return true;
   }
 
   function toggleFavorite(productId) {
     setFavorites((current) =>
       current.includes(productId)
         ? current.filter((id) => id !== productId)
-        : [...current, productId],
+        : [...current, productId]
     );
   }
 
-  const filteredProducts = fallbackProducts.filter((product) =>
-    [product.name, product.category, product.taste, product.description].some((value) =>
-      value.toLowerCase().includes(query.toLowerCase()),
-    ),
+  const filteredProducts = products.filter((product) =>
+    [product.name, product.category, product.taste, ...product.tastes, product.description]
+      .some((value) => value.toLowerCase().includes(query.toLowerCase()))
   );
-  const favoriteProducts = fallbackProducts.filter((product) => favorites.includes(product.id));
+  const favoriteProducts = products.filter((product) => favorites.includes(product.id));
 
   return (
     <div className="site-shell">
@@ -526,8 +953,10 @@ function App() {
           setMenuOpen={setMenuOpen}
           query={query}
           setQuery={setQuery}
-          cartCount={cart?.items.length || 0}
+          cartCount={cart.items.reduce((sum, item) => sum + item.quantity, 0)}
           favoriteCount={favorites.length}
+          session={session}
+          onSignOut={signOut}
         />
         {menuOpen && <MobileNav close={() => setMenuOpen(false)} />}
         <main>
@@ -535,41 +964,60 @@ function App() {
             <Route path="/" element={<Home home={fallbackHome} />} />
             <Route
               path="/catalog"
-              element={<Catalog products={filteredProducts} addToCart={addToCart} />}
+              element={<Catalog products={filteredProducts} addToCart={addToCart} loading={productsLoading} error={productsError} />}
             />
             <Route
               path="/product/:id"
-              element={(
+              element={
                 <ProductRoute
-                  products={fallbackProducts}
+                  products={products}
                   addToCart={addToCart}
                   favorites={favorites}
                   toggleFavorite={toggleFavorite}
+                  loading={productsLoading}
+                  error={productsError}
                 />
-              )}
+              }
             />
-            <Route
-              path="/favorites"
-              element={<Favorites products={favoriteProducts} addToCart={addToCart} />}
-            />
+            <Route path="/favorites" element={<Favorites products={favoriteProducts} addToCart={addToCart} />} />
             <Route path="/gifts" element={<Gifts gifts={{ hero: { image: heroImages.gifts }, items: fallbackGifts }} addToCart={addToCart} />} />
+            <Route path="/cart" element={<Cart cart={cart} changeQuantity={changeQuantity} applyPromo={applyPromo} />} />
+            <Route path="/checkout" element={<Checkout cart={cart} submitOrder={submitOrder} orderError={orderError} isAuthenticated={Boolean(session?.user?.id)} />} />
             <Route
-              path="/cart"
-              element={<Cart cart={cart} changeQuantity={changeQuantity} applyPromo={applyPromo} />}
+              path="/profile"
+              element={
+                authLoading ? (
+                  <div className="simple-page"><p>Проверяем авторизацию...</p></div>
+                ) : !session?.user ? (
+                  <div className="simple-page">
+                    <BackLink to="/" label="На главную" />
+                    <EmptyState
+                      title="Войдите в аккаунт"
+                      text="Профиль доступен после входа. Регистрация сама по себе профиль не создаёт."
+                      action={<Link className="button dark" to="/login">Войти</Link>}
+                    />
+                  </div>
+                ) : profileLoading ? (
+                  <div className="simple-page"><p>Загружаем профиль...</p></div>
+                ) : profileError ? (
+                  <div className="simple-page">
+                    <EmptyState title="Не удалось загрузить профиль" text={profileError} action={<button className="button dark" onClick={() => window.location.reload()}>Повторить</button>} />
+                  </div>
+                ) : profile ? (
+                  <Profile profile={profile} email={session.user.email} updateProfile={saveProfile} favoriteCount={favorites.length} cartCount={cart.items.length} orders={orders} onSignOut={signOut} />
+                ) : (
+                  <ProfileSetup email={session.user.email} onSave={saveProfile} />
+                )
+              }
             />
-            <Route
-              path="/checkout"
-              element={<Checkout cart={cart} submitOrder={submitOrder} />}
-            />
-            <Route path="/profile" element={<Profile profile={profile} updateProfile={updateProfile} favoriteCount={favorites.length} cartCount={cart.items.length} />} />
             <Route path="/promotions" element={<Promotions promotions={fallbackPromotions} />} />
             <Route path="/about" element={<About about={fallbackAbout} />} />
             <Route path="/delivery" element={<Delivery />} />
-            <Route path="/picker" element={<Picker products={fallbackProducts} addToCart={addToCart} />} />
+            <Route path="/picker" element={<Picker products={products} addToCart={addToCart} />} />
             <Route path="/login" element={<Auth mode="login" />} />
             <Route path="/register" element={<Auth mode="register" />} />
             <Route path="/recover" element={<Auth mode="recover" />} />
-          <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>
@@ -615,7 +1063,7 @@ function AssetGuide() {
   );
 }
 
-function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favoriteCount }) {
+function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favoriteCount, session, onSignOut }) {
   return (
     <header className="topbar">
       <Link className="brand" to="/">
@@ -647,7 +1095,14 @@ function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favoriteCou
       <Link className="nav-link" to="/cart">
         Корзина {cartCount > 0 && <span>{cartCount}</span>}
       </Link>
-      <Link className="nav-link" to="/profile">Профиль</Link>
+      {session?.user ? (
+        <>
+          <Link className="nav-link" to="/profile">Профиль</Link>
+          <button className="nav-link" type="button" onClick={onSignOut}>Выйти</button>
+        </>
+      ) : (
+        <Link className="nav-link" to="/login">Войти</Link>
+      )}
       <button
         className="mobile-toggle"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -893,7 +1348,7 @@ function Faq() {
   );
 }
 
-function Catalog({ products, addToCart }) {
+function Catalog({ products, addToCart, loading = false, error = '' }) {
   const [filters, setFilters] = useState({ categories: [], tastes: [], prices: [] });
 
   function toggleFilter(type, value) {
@@ -919,56 +1374,51 @@ function Catalog({ products, addToCart }) {
 
   const visibleProducts = products.filter((product) => {
     const categoryOk = !filters.categories.length || filters.categories.includes(product.category);
-    const tasteOk = !filters.tastes.length || filters.tastes.includes(capitalize(product.taste));
+    const productTastes = product.tastes ?? [product.taste];
+    const tasteOk = !filters.tastes.length || productTastes.some(
+      (taste) => filters.tastes.includes(capitalize(taste))
+    );
     return categoryOk && tasteOk && matchesPrice(product);
   });
+
+  function resetFilters() {
+    setFilters({ categories: [], tastes: [], prices: [] });
+  }
 
   return (
     <div className="catalog-page">
       <div className="page-title">
         <BackLink to="/" label="На главную" />
         <h1>Каталог</h1>
-        <p>{visibleProducts.length} из {products.length} товаров</p>
+        <p>{loading ? 'Загрузка товаров...' : error ? 'Ошибка загрузки' : visibleProducts.length + ' из ' + products.length + ' товаров'}</p>
       </div>
       <aside className="filters">
         <h2>Фильтры</h2>
-        <FilterGroup
-          title="Категория"
-          type="categories"
-          items={filterOptions.categories}
-          selected={filters.categories}
-          onToggle={toggleFilter}
-        />
-        <FilterGroup
-          title="Вкус"
-          type="tastes"
-          items={filterOptions.tastes}
-          selected={filters.tastes}
-          onToggle={toggleFilter}
-        />
-        <FilterGroup
-          title="Цена"
-          type="prices"
-          items={filterOptions.prices}
-          selected={filters.prices}
-          onToggle={toggleFilter}
-        />
+        <FilterGroup title="Категория" type="categories" items={filterOptions.categories} selected={filters.categories} onToggle={toggleFilter} />
+        <FilterGroup title="Вкус" type="tastes" items={filterOptions.tastes} selected={filters.tastes} onToggle={toggleFilter} />
+        <FilterGroup title="Цена" type="prices" items={filterOptions.prices} selected={filters.prices} onToggle={toggleFilter} />
         <div className="filter-actions">
           <button className="button dark" type="button">Показано {visibleProducts.length}</button>
-          <button className="button light" type="button" onClick={() => setFilters({ categories: [], tastes: [], prices: [] })}>
-            Сбросить
-          </button>
+          <button className="button light" type="button" onClick={resetFilters}>Сбросить</button>
         </div>
       </aside>
       <section className="catalog-content">
-        <p className="sort-label">Сортировка: По популярности +</p>
-        {visibleProducts.length ? (
+        <p className="sort-label">Сортировка: По названию</p>
+        {loading ? (
+          <p>Загружаем каталог из Supabase...</p>
+        ) : error ? (
+          <EmptyState
+            title="Не удалось загрузить каталог"
+            text={error}
+            action={<button className="button dark" type="button" onClick={() => window.location.reload()}>Повторить загрузку</button>}
+          />
+        ) : visibleProducts.length ? (
           <ProductGrid products={visibleProducts} addToCart={addToCart} />
         ) : (
           <EmptyState
             title="Ничего не нашлось"
             text="Сбросьте фильтры или попробуйте другой запрос."
-            action={<button className="button dark" type="button" onClick={() => setFilters({ categories: [], tastes: [], prices: [] })}>Сбросить фильтры</button>}
+            action={<button className="button dark" type="button" onClick={resetFilters}>Сбросить фильтры</button>}
           />
         )}
       </section>
@@ -1030,9 +1480,30 @@ function ProductGrid({ products, addToCart, compact = false }) {
   );
 }
 
-function ProductRoute({ products, addToCart, favorites, toggleFavorite }) {
+function ProductRoute({
+  products,
+  addToCart,
+  favorites,
+  toggleFavorite,
+  loading = false,
+  error = '',
+}) {
   const { id } = useParams();
-  const product = products.find((item) => item.id === id) || products[0];
+  const product = products.find((item) => item.id === id);
+
+  if (!product) {
+    return (
+      <div className="simple-page">
+        <BackLink to="/catalog" label="Вернуться в каталог" />
+        <EmptyState
+          title={loading ? 'Загрузка товара...' : 'Товар не найден'}
+          text={error || (loading ? 'Получаем информацию из базы данных.' : 'Возможно, товар снят с продажи.')}
+          action={<Link className="button dark" to="/catalog">Открыть каталог</Link>}
+        />
+      </div>
+    );
+  }
+
   return (
     <Product
       product={product}
@@ -1237,22 +1708,28 @@ function OrderSummary({ cart, applyPromo }) {
   );
 }
 
-function Checkout({ cart, submitOrder }) {
+function Checkout({ cart, submitOrder, orderError = '', isAuthenticated = false }) {
   const [delivery, setDelivery] = useState('courier');
   const [payment, setPayment] = useState('card');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event) {
-    submitOrder(event);
-    setSubmitted(true);
+  async function handleSubmit(event) {
+    setSubmitting(true);
+    try {
+      const ok = await submitOrder(event, delivery);
+      if (ok) setSubmitted(true);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
     return (
       <div className="simple-page">
         <EmptyState
-          title="Заказ оформлен"
-          text="Мы добавили заказ в личный кабинет. Можно продолжить выбирать чай."
+          title="Заказ сохранён"
+          text="Заказ записан в Supabase и ожидает подтверждения. Реальная оплата пока не подключена."
           action={<Link className="button dark" to="/profile">Открыть профиль</Link>}
         />
       </div>
@@ -1265,6 +1742,7 @@ function Checkout({ cart, submitOrder }) {
         <BackLink to="/cart" label="Вернуться в корзину" />
       </div>
       <h1>Оформление заказа</h1>
+      {!isAuthenticated && <p>Чтобы сохранить заказ, сначала <Link to="/login">войдите в аккаунт</Link>.</p>}
       <div className="steps"><span>1 Корзина</span><span>2 Доставка</span><span>3 Оплата</span><span>4 Готово</span></div>
       <form className="checkout-form" onSubmit={handleSubmit}>
         <h2>Данные получателя</h2>
@@ -1282,65 +1760,105 @@ function Checkout({ cart, submitOrder }) {
           <button className={payment === 'card' ? 'active' : ''} type="button" onClick={() => setPayment('card')}>Банковская карта</button>
           <button className={payment === 'split' ? 'active' : ''} type="button" onClick={() => setPayment('split')}>Сплит</button>
         </div>
-        <p>К оплате</p>
+        <p>К оформлению</p>
         <strong>{money(cart.summary.total)}</strong>
-        <button className="button clay" onClick={() => document.querySelector('.checkout-form')?.requestSubmit()}>
-          Подтвердить и оплатить
+        {orderError && <p className="field-error">{orderError}</p>}
+        <button className="button clay" type="button" disabled={submitting || !cart.items.length} onClick={() => document.querySelector('.checkout-form')?.requestSubmit()}>
+          {submitting ? 'Сохраняем заказ...' : 'Оформить заказ'}
         </button>
       </aside>
     </div>
   );
 }
 
-function Profile({ profile, updateProfile, favoriteCount, cartCount }) {
-  const [form, setForm] = useState({
-    name: profile.name,
-    email: profile.email,
-    phone: profile.phone,
-    city: profile.city,
-    address: profile.address,
-  });
-  const [saved, setSaved] = useState(false);
+function ProfileSetup({ email, onSave }) {
+  const [displayName, setDisplayName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
-  }
-
-  function handleSave(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    updateProfile(form);
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1500);
+    setSaving(true);
+    setError('');
+    setMessage('');
+    try {
+      await onSave({ display_name: displayName, phone });
+      setMessage('Профиль сохранён.');
+    } catch (saveError) {
+      setError(saveError.message || 'Не удалось сохранить профиль.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <div className="profile-page">
-      <div className="page-title">
-        <BackLink to="/" label="На главную" />
-      </div>
+      <div className="page-title"><BackLink to="/" label="На главную" /></div>
+      <h1>Личный кабинет</h1>
+      <EmptyState
+        title="Профиль ещё не создан"
+        text="Регистрация создала аккаунт, но профиль будет сохранён только после заполнения этой формы."
+      />
+      <form className="profile-card" onSubmit={handleSubmit}>
+        <h2>Создать профиль</h2>
+        <label>E-mail<input type="email" value={email || ''} readOnly /></label>
+        <label>Имя<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
+        <label>Телефон<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+7 999 123-45-67" /></label>
+        {error && <p className="field-error">{error}</p>}
+        {message && <p className="auth-message">{message}</p>}
+        <button className="button dark" type="submit" disabled={saving}>{saving ? 'Сохраняем...' : 'Сохранить профиль'}</button>
+      </form>
+    </div>
+  );
+}
+
+function Profile({ profile, email, updateProfile, favoriteCount, cartCount, orders, onSignOut }) {
+  const [displayName, setDisplayName] = useState(profile.display_name || '');
+  const [phone, setPhone] = useState(profile.phone || '');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave(event) {
+    event.preventDefault();
+    setSaving(true);
+    setMessage('');
+    setError('');
+    try {
+      const saved = await updateProfile({ display_name: displayName, phone });
+      setDisplayName(saved.display_name || '');
+      setPhone(saved.phone || '');
+      setMessage('Изменения сохранены в Supabase.');
+    } catch (saveError) {
+      setError(saveError.message || 'Не удалось сохранить профиль.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="profile-page">
+      <div className="page-title"><BackLink to="/" label="На главную" /></div>
       <h1>Личный кабинет</h1>
       <aside className="profile-menu">
         <strong>Покупатель</strong>
-        {[
-          ['Профиль', '/profile'],
-          ['Мои заказы', '/profile'],
-          ['Избранное', '/favorites'],
-          ['Адреса доставки', '/checkout'],
-          ['Настройки', '/profile'],
-        ].map(([item, to], index) => (
-          <Link className={index === 0 ? 'active' : ''} key={item} to={to}>{item}</Link>
-        ))}
+        <Link className="active" to="/profile">Профиль</Link>
+        <Link to="/profile#orders">Мои заказы</Link>
+        <Link to="/favorites">Избранное</Link>
+        <Link to="/cart">Корзина</Link>
+        <button className="nav-link" type="button" onClick={onSignOut}>Выйти из аккаунта</button>
       </aside>
       <section className="profile-dashboard">
         <form className="profile-card" onSubmit={handleSave}>
           <h2>Данные профиля</h2>
-          <label>Имя<input name="name" value={form.name} onChange={handleChange} /></label>
-          <label>E-mail<input name="email" value={form.email} onChange={handleChange} /></label>
-          <label>Телефон<input name="phone" value={form.phone} onChange={handleChange} /></label>
-          <label>Город<input name="city" value={form.city} onChange={handleChange} /></label>
-          <label>Адрес<input name="address" value={form.address} onChange={handleChange} /></label>
-          <button className="button dark" type="submit">{saved ? 'Сохранено' : 'Сохранить'}</button>
+          <label>E-mail аккаунта<input type="email" value={email || ''} readOnly /></label>
+          <label>Имя<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
+          <label>Телефон<input value={phone} onChange={(event) => setPhone(event.target.value)} /></label>
+          {error && <p className="field-error">{error}</p>}
+          {message && <p className="auth-message">{message}</p>}
+          <button className="button dark" type="submit" disabled={saving}>{saving ? 'Сохраняем...' : 'Сохранить'}</button>
         </form>
         <div className="profile-stats">
           <Link to="/favorites"><Heart size={18} /> Избранное: {favoriteCount}</Link>
@@ -1349,17 +1867,16 @@ function Profile({ profile, updateProfile, favoriteCount, cartCount }) {
           <Link to="/catalog">Каталог товаров</Link>
         </div>
       </section>
-      <section className="orders">
+      <section className="orders" id="orders">
         <h2>Мои заказы</h2>
-        {profile.orders.map((order) => (
+        {orders.length ? orders.map((order) => (
           <article key={order.id}>
-            <strong>{order.id}</strong>
+            <strong>Заказ №{order.number}</strong>
             <span>{order.date}</span>
             <mark>{order.status}</mark>
             <b>{money(order.total)}</b>
-            <Link to="/cart">Подробнее +</Link>
           </article>
-        ))}
+        )) : <p>Заказов пока нет.</p>}
       </section>
     </div>
   );
@@ -1514,40 +2031,80 @@ function Picker({ products, addToCart }) {
 function Auth({ mode }) {
   const navigate = useNavigate();
   const [message, setMessage] = useState('');
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [recoveryActive, setRecoveryActive] = useState(false);
   const isRegister = mode === 'register';
   const isRecover = mode === 'recover';
+  const isPasswordReset = isRecover && recoveryActive;
 
-  function handleSubmit(event) {
+  useEffect(() => {
+    if (!supabase || !isRecover) return undefined;
+    if (window.location.hash.includes('type=recovery')) setRecoveryActive(true);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setRecoveryActive(true);
+    });
+    return () => subscription.unsubscribe();
+  }, [isRecover]);
+
+  async function handleSubmit(event) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const email = String(form.get('email') || '').trim();
-    const phone = String(form.get('phone') || '').trim();
-    const password = String(form.get('password') || '');
-    const nextErrors = {};
+    setBusy(true);
+    setMessage('');
+    setError('');
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email)) {
-      nextErrors.email = 'Введите почту в формате name@example.ru.';
-    }
-    if (isRegister && !/^\+?\d[\d\s()-]{9,}$/.test(phone)) {
-      nextErrors.phone = 'Введите нормальный телефон, например +7 999 123-45-67.';
-    }
-    if (!isRecover && password.length < 4) {
-      nextErrors.password = 'Пароль должен быть минимум 4 символа.';
-    }
-    if (Object.keys(nextErrors).length) {
-      setErrors(nextErrors);
-      setMessage('');
-      return;
-    }
+    try {
+      if (!supabase) throw new Error('Supabase не настроен. Проверь .env и пересобери сайт.');
 
-    setErrors({});
-    if (isRecover) {
-      setMessage('Ссылка для восстановления отправлена на почту.');
-      return;
+      const form = new FormData(event.currentTarget);
+      const email = String(form.get('email') || '').trim().toLowerCase();
+      const password = String(form.get('password') || '');
+
+      if (isPasswordReset) {
+        if (password.length < 6) throw new Error('Новый пароль должен содержать минимум 6 символов.');
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+        if (updateError) throw updateError;
+        setMessage('Пароль изменён. Теперь войди с новым паролем.');
+        setRecoveryActive(false);
+        navigate('/login');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email)) {
+        throw new Error('Введите корректный адрес электронной почты.');
+      }
+
+      if (isRecover) {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/recover',
+        });
+        if (resetError) throw resetError;
+        setMessage('Если адрес зарегистрирован, инструкция для восстановления отправлена на почту.');
+        return;
+      }
+
+      if (password.length < 6) throw new Error('Пароль должен содержать минимум 6 символов.');
+
+      if (isRegister) {
+        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        if (signUpError) throw signUpError;
+
+        if (data.session) {
+          navigate('/profile');
+        } else {
+          setMessage('Аккаунт создан. Проверь почту, подтверди адрес и затем войди. Профиль пока не создан.');
+        }
+        return;
+      }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInError) throw signInError;
+      navigate('/profile');
+    } catch (authError) {
+      setError(authError.message || 'Не удалось выполнить запрос авторизации.');
+    } finally {
+      setBusy(false);
     }
-    setMessage(isRegister ? 'Аккаунт создан. Открываем профиль.' : 'Вход выполнен. Открываем профиль.');
-    window.setTimeout(() => navigate('/profile'), 450);
   }
 
   return (
@@ -1560,34 +2117,33 @@ function Auth({ mode }) {
           <Link className={mode === 'register' ? 'active' : ''} to="/register">Регистрация</Link>
           <Link className={mode === 'recover' ? 'active' : ''} to="/recover">Пароль</Link>
         </div>
-        <h1>{isRecover ? 'Восстановление пароля' : isRegister ? 'Создать аккаунт' : 'Вход'}</h1>
-        <p>{isRecover ? 'Введите e-mail, на который мы отправим ссылку.' : 'Сохраняйте избранное и историю заказов.'}</p>
-        {isRegister && <label>Имя<input name="name" placeholder="Ваше имя" required /></label>}
-        <label>
-          E-mail
-          <input className={errors.email ? 'invalid' : ''} name="email" type="text" placeholder="example@mail.ru" required />
-          {errors.email && <span className="field-error">{errors.email}</span>}
-        </label>
-        {isRegister && (
+        <h1>{isPasswordReset ? 'Новый пароль' : isRecover ? 'Восстановление пароля' : isRegister ? 'Создать аккаунт' : 'Вход'}</h1>
+        <p>
+          {isPasswordReset
+            ? 'Введи новый пароль для аккаунта.'
+            : isRecover
+              ? 'Введи e-mail, на который отправить ссылку для восстановления.'
+              : 'После входа можно сохранять избранное, корзину и историю заказов.'}
+        </p>
+        {!isPasswordReset && (
           <label>
-            Телефон
-            <input className={errors.phone ? 'invalid' : ''} name="phone" placeholder="+7 (___) ___-__-__" required />
-            {errors.phone && <span className="field-error">{errors.phone}</span>}
+            E-mail
+            <input name="email" type="email" autoComplete="email" placeholder="example@mail.ru" required />
           </label>
         )}
-        {!isRecover && (
+        {(isPasswordReset || !isRecover) && (
           <label>
-            Пароль
-            <input className={errors.password ? 'invalid' : ''} name="password" type="password" placeholder="Введите пароль" required />
-            {errors.password && <span className="field-error">{errors.password}</span>}
+            {isPasswordReset ? 'Новый пароль' : 'Пароль'}
+            <input name="password" type="password" minLength={6} autoComplete={isPasswordReset ? 'new-password' : isRegister ? 'new-password' : 'current-password'} placeholder="Минимум 6 символов" required />
           </label>
         )}
-        <button className="button dark" type="submit">
-          {isRecover ? 'Отправить ссылку' : isRegister ? 'Зарегистрироваться' : 'Войти'}
-        </button>
+        {error && <p className="field-error">{error}</p>}
         {message && <p className="auth-message">{message}</p>}
+        <button className="button dark" type="submit" disabled={busy}>
+          {busy ? 'Подождите...' : isPasswordReset ? 'Сохранить новый пароль' : isRecover ? 'Отправить ссылку' : isRegister ? 'Зарегистрироваться' : 'Войти'}
+        </button>
         <small>
-          {isRecover && <Link to="/login">Вернуться ко входу</Link>}
+          {isRecover && !isPasswordReset && <Link to="/login">Вернуться ко входу</Link>}
           {isRegister && <Link to="/login">Уже есть аккаунт? Войти</Link>}
           {mode === 'login' && <Link to="/recover">Забыли пароль?</Link>}
         </small>
