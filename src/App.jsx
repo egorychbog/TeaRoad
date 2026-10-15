@@ -426,7 +426,7 @@ function createCart(itemsInput = [], promoCode = '', catalog = fallbackProducts)
     .filter((item) => item.product && item.quantity > 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const promo = promoRules[promoCode.toUpperCase()];
-  const baseDiscount = subtotal >= 3000 ? 750 : 0;
+  const baseDiscount = 0; // Discounts are validated by Supabase during checkout.
   const promoDiscount = promo?.type === 'percent' ? Math.round((subtotal * promo.value) / 100) : 0;
   return {
     items,
