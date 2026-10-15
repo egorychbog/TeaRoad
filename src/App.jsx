@@ -690,6 +690,7 @@ function App() {
           const { error } = await supabase.from('cart_items').insert(rows);
           if (error) throw error;
         }
+        window.localStorage.removeItem('tearoad-guest-cart');
         console.log('[Supabase] Корзина сохранена:', rows.length, 'позиций');
       })
       .catch((error) => console.error('[Supabase] Ошибка сохранения корзины:', error));
@@ -772,6 +773,7 @@ function App() {
           const { error } = await supabase.from('favorites').insert(rows);
           if (error) throw error;
         }
+        window.localStorage.removeItem('tearoad-guest-favorites');
         console.log('[Supabase] Избранное сохранено:', rows.length, 'товаров');
       })
       .catch((error) => console.error('[Supabase] Ошибка сохранения избранного:', error));
@@ -860,6 +862,7 @@ function App() {
       user_id: session.user.id,
       display_name: String(nextProfile.display_name ?? '').trim(),
       phone: String(nextProfile.phone ?? '').trim() || null,
+      updated_at: new Date().toISOString(),
     };
 
     if (!payload.display_name) throw new Error('Введите имя.');
