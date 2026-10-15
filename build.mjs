@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { build } from 'esbuild';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -10,6 +11,10 @@ await fs.mkdir(path.join(dist, 'assets'), { recursive: true });
 
 await build({
   entryPoints: ['src/main.jsx'],
+  define: {
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || ''),
+    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''),
+  },
   bundle: true,
   minify: true,
   sourcemap: false,
