@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { ArrowLeft, Heart, Leaf, Menu, Search, TicketPercent, X } from 'lucide-react';
+import { ArrowLeft, Heart, Menu, Search, TicketPercent, X } from 'lucide-react';
 
 
 const assetGuide = [
@@ -45,7 +45,7 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
   return (
     <header className="topbar sticky top-3 z-40 mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 rounded-2xl border border-stone-200/80 bg-white/95 px-4 py-3 text-stone-800 shadow-sm backdrop-blur md:flex-nowrap md:gap-4">
       <Link className="brand flex shrink-0 items-center gap-2 rounded-xl text-sm font-extrabold tracking-widest text-emerald-950" to="/">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-950 text-amber-50 shadow-sm"><Leaf size={23} strokeWidth={1.8} /></span>
+        <img className="logo-image" src="https://raw.githubusercontent.com/egorychbog/TeaRoad/b405c42c12e11e85e818904b0ef7078a7e3f15e7/public/assets/logo.png" alt="Чайный путь" width="42" height="42" decoding="async" />
         <span className="hidden sm:inline">ЧАЙНЫЙ ПУТЬ</span>
       </Link>
       <nav className="desktop-nav hidden flex-1 items-center gap-1 xl:flex">
