@@ -84,6 +84,7 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
       )}
       <button
         className="mobile-toggle inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-stone-700 transition hover:bg-stone-100 xl:hidden"
+        type="button"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Меню"
       >
@@ -118,7 +119,7 @@ export function MobileNav({ close }) {
 
 export function HeroBanner({ image, label, title, text, action }) {
   return (
-    <section className="hero-banner home-hero relative isolate overflow-hidden rounded-3xl shadow-sm">
+    <section className="hero-banner home-hero relative isolate min-h-[320px] overflow-hidden rounded-3xl shadow-sm sm:min-h-[390px] lg:min-h-[440px]">
       <img className="absolute inset-0 h-full w-full object-cover" src={image} alt="" loading="eager" fetchPriority="high" decoding="async" />
       <div className="banner-overlay" />
       <div className="banner-copy relative z-10 mx-auto w-full max-w-7xl px-6 py-14 sm:px-10 md:py-20">
@@ -156,11 +157,11 @@ export function ImageCarousel({ slides }) {
     <section className="carousel-section grid gap-6 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm md:grid-cols-2 md:items-center md:p-8">
       <div className="carousel-copy space-y-4">
         <p className="kicker">Подборка</p>
-        <h2>{current.title}</h2>
-        <p>{current.text}</p>
+        <h2 className="text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl">{current.title}</h2>
+        <p className="text-base leading-7 text-stone-600">{current.text}</p>
         <Link className="button dark" to={current.to}>Открыть</Link>
       </div>
-      <div className="carousel-visual relative min-w-0 overflow-hidden rounded-2xl bg-stone-100">
+      <div className="carousel-visual relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl bg-stone-100">
         <img className="h-full w-full rounded-2xl object-cover" loading="lazy" decoding="async" src={current.image} alt={current.title} />
         <button className="absolute left-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-xl text-stone-900 shadow transition hover:bg-white" type="button" onClick={prevSlide} aria-label="Предыдущий слайд">‹</button>
         <button className="absolute right-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-xl text-stone-900 shadow transition hover:bg-white" type="button" onClick={nextSlide} aria-label="Следующий слайд">›</button>

@@ -88,23 +88,25 @@ export function Gifts({ gifts, addToCart }) {
 export function Cart({ cart, changeQuantity, applyPromo }) {
   return (
     <div className="cart-page mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-      <div className="page-title">
+      <div className="page-title lg:col-span-2">
         <BackLink to="/catalog" label="Продолжить покупки" />
       </div>
-      <h1 className="mb-6 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Корзина</h1>
+      <h1 className="mb-0 text-3xl font-semibold tracking-tight text-stone-950 sm:col-span-2 sm:text-4xl lg:col-span-2">Корзина</h1>
       <div className="cart-list min-w-0 space-y-3">
         {cart.items.length ? (
           cart.items.map((item) => (
             <article className="cart-item grid grid-cols-[84px_minmax(0,1fr)] items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3 sm:grid-cols-[100px_minmax(0,1fr)_auto] sm:p-4" key={item.productId}>
               <img className="aspect-square w-full rounded-xl object-cover bg-stone-50" loading="lazy" decoding="async" src={item.product.image} alt="" />
-              <div>
-                <h3>{item.product.name}</h3>
-                <p>Количество</p>
-                <button onClick={() => changeQuantity(item.productId, item.quantity - 1)}><Minus size={14} /></button>
-                <span>{item.quantity}</span>
-                <button onClick={() => changeQuantity(item.productId, item.quantity + 1)}><Plus size={14} /></button>
+              <div className="min-w-0 py-1">
+                <h3 className="font-semibold text-stone-900">{item.product.name}</h3>
+                <p className="mt-2 text-xs text-stone-500">Количество</p>
+                <div className="mt-1 inline-flex items-center gap-3 rounded-xl border border-stone-200 px-2 py-1">
+                  <button className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-stone-100" type="button" aria-label="Уменьшить количество" onClick={() => changeQuantity(item.productId, item.quantity - 1)}><Minus size={14} /></button>
+                  <span className="min-w-4 text-center text-sm font-semibold">{item.quantity}</span>
+                  <button className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-stone-100" type="button" aria-label="Увеличить количество" onClick={() => changeQuantity(item.productId, item.quantity + 1)}><Plus size={14} /></button>
+                </div>
               </div>
-              <strong>{money(item.product.price * item.quantity)}</strong>
+              <strong className="col-span-2 text-right text-lg font-semibold text-emerald-950 sm:col-span-1">{money(item.product.price * item.quantity)}</strong>
             </article>
           ))
         ) : (
@@ -137,7 +139,7 @@ export function OrderSummary({ cart, applyPromo }) {
 
   return (
     <aside className="order-card h-fit rounded-2xl border border-stone-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
-      <h2>Ваш заказ</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-stone-900">Ваш заказ</h2>
       <form className="promo-form" onSubmit={handlePromo}>
         <label>
           Промокод
@@ -187,12 +189,12 @@ export function Checkout({ cart, submitOrder, orderError = '', isAuthenticated =
 
   return (
     <div className="checkout-page mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-      <div className="page-title">
+      <div className="page-title lg:col-span-2">
         <BackLink to="/cart" label="Вернуться в корзину" />
       </div>
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Оформление заказа</h1>
-      {!isAuthenticated && <p>Чтобы сохранить заказ, сначала <Link to="/login">войдите в аккаунт</Link>.</p>}
-      <div className="steps grid grid-cols-2 gap-2 sm:grid-cols-4"><span>1 Корзина</span><span>2 Доставка</span><span>3 Оплата</span><span>4 Готово</span></div>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl lg:col-span-2">Оформление заказа</h1>
+      {!isAuthenticated && <p className="rounded-xl bg-amber-50 p-3 text-sm leading-6 text-amber-950 lg:col-span-2">Чтобы сохранить заказ, сначала <Link className="font-semibold underline underline-offset-2" to="/login">войдите в аккаунт</Link>.</p>}
+      <div className="steps grid grid-cols-2 gap-2 sm:grid-cols-4 lg:col-span-2"><span>1 Корзина</span><span>2 Доставка</span><span>3 Оплата</span><span>4 Готово</span></div>
       <form className="checkout-form space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:p-7" onSubmit={handleSubmit}>
         <h2>Данные получателя</h2>
         <label className="grid gap-1.5 text-sm font-medium text-stone-700">Имя<input className="w-full" name="name" placeholder="Имя покупателя" required /></label>
@@ -201,7 +203,7 @@ export function Checkout({ cart, submitOrder, orderError = '', isAuthenticated =
         <label className="grid gap-1.5 text-sm font-medium text-stone-700">Адрес<input className="w-full" name="address" placeholder="Адрес доставки" required /></label>
       </form>
       <aside className="checkout-side h-fit space-y-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
-        <h2>Доставка и оплата</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-stone-900">Доставка и оплата</h2>
         <button className={delivery === 'courier' ? 'active' : ''} type="button" onClick={() => setDelivery('courier')}>Курьер +1-2 дня</button>
         <button className={delivery === 'pickup' ? 'active' : ''} type="button" onClick={() => setDelivery('pickup')}>Пункт выдачи +2-4 дня</button>
         <h3>Способ оплаты</h3>

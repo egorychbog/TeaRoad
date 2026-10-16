@@ -37,9 +37,9 @@ export function ProfileSetup({ email, onSave }) {
       />
       <form className="profile-card rounded-2xl border border-stone-200 bg-white shadow-sm" onSubmit={handleSubmit}>
         <h2>Создать профиль</h2>
-        <label>E-mail<input type="email" value={email || ''} readOnly /></label>
-        <label>Имя<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
-        <label>Телефон<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+7 999 123-45-67" /></label>
+        <label className="grid gap-1.5 text-sm font-medium text-stone-700">E-mail<input className="w-full" type="email" value={email || ''} readOnly /></label>
+        <label className="grid gap-1.5 text-sm font-medium text-stone-700">Имя<input className="w-full" value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
+        <label className="grid gap-1.5 text-sm font-medium text-stone-700">Телефон<input className="w-full" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+7 999 123-45-67" /></label>
         {error && <p className="field-error">{error}</p>}
         {message && <p className="auth-message">{message}</p>}
         <button className="button dark" type="submit" disabled={saving}>{saving ? 'Сохраняем...' : 'Сохранить профиль'}</button>
@@ -87,9 +87,9 @@ export function Profile({ profile, email, updateProfile, favoriteCount, cartCoun
       <section className="profile-dashboard grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
         <form className="profile-card space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm" onSubmit={handleSave}>
           <h2>Данные профиля</h2>
-          <label>E-mail аккаунта<input type="email" value={email || ''} readOnly /></label>
-          <label>Имя<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
-          <label>Телефон<input value={phone} onChange={(event) => setPhone(event.target.value)} /></label>
+          <label className="grid gap-1.5 text-sm font-medium text-stone-700">E-mail аккаунта<input className="w-full" type="email" value={email || ''} readOnly /></label>
+          <label className="grid gap-1.5 text-sm font-medium text-stone-700">Имя<input className="w-full" value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
+          <label className="grid gap-1.5 text-sm font-medium text-stone-700">Телефон<input className="w-full" value={phone} onChange={(event) => setPhone(event.target.value)} /></label>
           {error && <p className="field-error">{error}</p>}
           {message && <p className="auth-message">{message}</p>}
           <button className="button dark" type="submit" disabled={saving}>{saving ? 'Сохраняем...' : 'Сохранить'}</button>
