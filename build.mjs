@@ -37,7 +37,7 @@ const html = await fs.readFile('index.html', 'utf8');
 const outputHtml = html
   .replace(
     '</head>',
-    '    <link rel="stylesheet" href="/assets/app.css" />\\n  </head>',
+    '    <link rel="stylesheet" href="/assets/app.css" />\n  </head>',
   )
   .replace(
     '<script type="module" src="/src/main.jsx"></script>',

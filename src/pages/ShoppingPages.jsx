@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Minus, Plus } from 'lucide-react';
 import { HeroBanner, BackLink, EmptyState } from '../components/SiteChrome.jsx';
-import { ProductGrid } from '../pages/CatalogPage.jsx';
+import { ProductGrid } from '../components/ProductGrid.jsx';
 
 
 export function Favorites({ products, addToCart }) {
@@ -136,7 +136,7 @@ export function OrderSummary({ cart, applyPromo }) {
   }
 
   return (
-    <aside className="order-card">
+    <aside className="order-card sticky top-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
       <h2>Ваш заказ</h2>
       <form className="promo-form" onSubmit={handlePromo}>
         <label>
@@ -200,7 +200,7 @@ export function Checkout({ cart, submitOrder, orderError = '', isAuthenticated =
         <label>Город<input name="city" defaultValue="Новосибирск" required /></label>
         <label>Адрес<input name="address" placeholder="Адрес доставки" required /></label>
       </form>
-      <aside className="checkout-side">
+      <aside className="checkout-side sticky top-6 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
         <h2>Доставка и оплата</h2>
         <button className={delivery === 'courier' ? 'active' : ''} type="button" onClick={() => setDelivery('courier')}>Курьер +1-2 дня</button>
         <button className={delivery === 'pickup' ? 'active' : ''} type="button" onClick={() => setDelivery('pickup')}>Пункт выдачи +2-4 дня</button>

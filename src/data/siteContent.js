@@ -288,7 +288,7 @@ export const fallbackHome = {
     {
       title: 'Собрать чайный стол',
       text: 'Чай + посуда + аксессуары',
-      image: asset('wiki-puer-tee.jpg'),
+      image: asset('wiki-tea-ceremony.jpg'),
       target: '/catalog',
     },
     {

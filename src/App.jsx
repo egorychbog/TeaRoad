@@ -1,9 +1,25 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router-dom';
-import { supabase } from './lib/supabase.js';
-import { asset, fallbackAbout, fallbackGifts, fallbackHome, fallbackProducts, fallbackPromotions, heroImages, promoRules } from './data/siteContent.js';
-import { createCart, readStoredArray } from './lib/cartHelpers.js';
+import { fallbackAbout, fallbackGifts, fallbackHome, fallbackPromotions, heroImages } from './data/siteContent.js';
 import { BackLink, EmptyState, Header, MobileNav } from './components/SiteChrome.jsx';
+import { useShopState } from './hooks/useShopState.js';
+
+const lazyNamed = (loader, name) => lazy(() => loader().then((module) => ({ default: module[name] })));
+const Home = lazyNamed(() => import('./pages/HomePage.jsx'), 'Home');
+const Catalog = lazyNamed(() => import('./pages/CatalogPage.jsx'), 'Catalog');
+const ProductRoute = lazyNamed(() => import('./pages/ProductPage.jsx'), 'ProductRoute');
+const Favorites = lazyNamed(() => import('./pages/ShoppingPages.jsx'), 'Favorites');
+const Gifts = lazyNamed(() => import('./pages/ShoppingPages.jsx'), 'Gifts');
+const Cart = lazyNamed(() => import('./pages/ShoppingPages.jsx'), 'Cart');
+const Checkout = lazyNamed(() => import('./pages/ShoppingPages.jsx'), 'Checkout');
+const ProfileSetup = lazyNamed(() => import('./pages/ProfilePages.jsx'), 'ProfileSetup');
+const Profile = lazyNamed(() => import('./pages/ProfilePages.jsx'), 'Profile');
+const Promotions = lazyNamed(() => import('./pages/ContentPages.jsx'), 'Promotions');
+const About = lazyNamed(() => import('./pages/ContentPages.jsx'), 'About');
+const Delivery = lazyNamed(() => import('./pages/ContentPages.jsx'), 'Delivery');
+const Picker = lazyNamed(() => import('./pages/ContentPages.jsx'), 'Picker');
+const NotFound = lazyNamed(() => import('./pages/ContentPages.jsx'), 'NotFound');
+const Auth = lazyNamed(() => import('./pages/AuthPage.jsx'), 'Auth');
 
 const lazyNamed = (loader, name) => lazy(() => loader().then((module) => ({ default: module[name] })));
 const Home = lazyNamed(() => import('./pages/HomePage.jsx'), 'Home');
@@ -24,49 +40,15 @@ const Auth = lazyNamed(() => import('./pages/AuthPage.jsx'), 'Auth');
 
 function App() {
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [cart, setCart] = useState(createCart);
-  const [products, setProducts] = useState([]);
-  const [productsLoading, setProductsLoading] = useState(true);
-  const [productsError, setProductsError] = useState('');
-  const [session, setSession] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [profile, setProfile] = useState(null);
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [profileError, setProfileError] = useState('');
-  const [favorites, setFavorites] = useState([]);
-  const [favoritesLoadedFor, setFavoritesLoadedFor] = useState(null);
-  const [cartLoadedFor, setCartLoadedFor] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [orderError, setOrderError] = useState('');
-  const cartSyncRef = useRef(Promise.resolve());
-  const favoritesSyncRef = useRef(Promise.resolve());
-  const ownerKey = session?.user?.id ?? 'guest';
+  const {
+    menuOpen, setMenuOpen, query, setQuery, cart, products, productsLoading,
+    productsError, session, authLoading, profile, profileLoading, profileError,
+    favorites, orders, orderError, filteredProducts, favoriteProducts, cartCount,
+    addToCart, changeQuantity, applyPromo, saveProfile, signOut, submitOrder, toggleFavorite,
+  } = useShopState(navigate);
 
-  useEffect(() => {
-    if (!supabase) {
-      setAuthLoading(false);
-      return undefined;
-    }
-
-    let alive = true;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, nextSession) => {
-        if (!alive) return;
-        setSession(nextSession);
-        setAuthLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (!alive) return;
-      if (error) console.error('[Auth] Не удалось получить сессию:', error);
-      setSession(data?.session ?? null);
-      setAuthLoading(false);
-    });
-
-    return () => {
+  return (
+ => {
       alive = false;
       subscription.unsubscribe();
     };

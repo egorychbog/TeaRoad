@@ -1,4 +1,4 @@
-import { fallbackProducts, promoRules } from '../data/siteContent.js';
+import { currency, fallbackProducts, promoRules } from '../data/siteContent.js';
 
 export function readStoredArray(key) {
   try {

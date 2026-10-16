@@ -54,7 +54,7 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
       <BackLink to="/catalog" label="Вернуться в каталог" />
       <p className="breadcrumbs">Каталог / {product.category} / Чайники</p>
       <div className="product-photo">
-        <img loading="lazy" decoding="async" src={product.image} alt={product.name} />
+        <img className="h-full w-full object-contain" loading="eager" fetchPriority="high" decoding="async" src={product.image} alt={product.name} />
       </div>
       <section className="product-info">
         <h1>{product.name}</h1>

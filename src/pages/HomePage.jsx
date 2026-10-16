@@ -2,12 +2,12 @@ import { asset, faqItems } from '../data/siteContent.js';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroBanner, ImageCarousel } from '../components/SiteChrome.jsx';
-import { ProductGrid } from '../pages/CatalogPage.jsx';
+import { ProductGrid } from '../components/ProductGrid.jsx';
 
 
 export function Home({ home }) {
   return (
-    <div className="page-stack">
+    <div className="page-stack space-y-8 sm:space-y-12">
       <HeroBanner
         image={home.hero.image}
         label={home.hero.label}
@@ -106,8 +106,8 @@ export function Home({ home }) {
           ))}
         </div>
       </section>
-      <section className="production-band">
-        <img loading="lazy" decoding="async" src={home.production.image} alt="" />
+      <section className="production-band grid overflow-hidden rounded-3xl bg-emerald-950 text-white shadow-sm md:grid-cols-2">
+        <img className="h-full w-full object-cover" loading="lazy" decoding="async" src={home.production.image} alt="" />
         <div>
           <p className="kicker">Мастерская магазина</p>
           <h2>{home.production.title}</h2>

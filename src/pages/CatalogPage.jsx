@@ -1,8 +1,6 @@
 import { filterOptions } from '../data/siteContent.js';
-import { money } from '../lib/cartHelpers.js';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
 import { BackLink, EmptyState } from '../components/SiteChrome.jsx';
 
 
@@ -50,7 +48,7 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
         <h1>Каталог</h1>
         <p>{loading ? 'Загрузка товаров...' : error ? 'Ошибка загрузки' : visibleProducts.length + ' из ' + products.length + ' товаров'}</p>
       </div>
-      <aside className="filters">
+      <aside className="filters self-start rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
         <h2>Фильтры</h2>
         <FilterGroup title="Категория" type="categories" items={filterOptions.categories} selected={filters.categories} onToggle={toggleFilter} />
         <FilterGroup title="Вкус" type="tastes" items={filterOptions.tastes} selected={filters.tastes} onToggle={toggleFilter} />
@@ -60,7 +58,7 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
           <button className="button light" type="button" onClick={resetFilters}>Сбросить</button>
         </div>
       </aside>
-      <section className="catalog-content">
+      <section className="catalog-content min-w-0">
         <p className="sort-label">Сортировка: По названию</p>
         {loading ? (
           <p>Загружаем каталог из Supabase...</p>
@@ -104,36 +102,4 @@ export function FilterGroup({ title, type, items, selected, onToggle }) {
 
 export function capitalize(value) {
   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-}
-
-export function ProductGrid({ products, addToCart, compact = false }) {
-  const [addedId, setAddedId] = useState('');
-
-  function handleAdd(productId) {
-    addToCart?.(productId);
-    setAddedId(productId);
-    window.setTimeout(() => setAddedId(''), 1100);
-  }
-
-  return (
-    <div className={compact ? 'product-grid compact' : 'product-grid'}>
-      {products.map((product) => (
-        <article className="product-card group h-full rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg" key={product.id}>
-          <Link className="image-button" to={`/product/${product.id}`}>
-            <img loading="lazy" decoding="async" src={product.image} alt={product.name} />
-          </Link>
-          <span className="stock">В наличии</span>
-          <h3>{product.name}</h3>
-          <p>{product.weight} · {product.category.toLowerCase()}</p>
-          <div className="price-row">
-            <strong>{money(product.price)}</strong>
-            <button onClick={() => handleAdd(product.id)} aria-label="Добавить в корзину">
-              {addedId === product.id ? '✓' : <ShoppingCart size={17} />}
-            </button>
-          </div>
-          <Link className="card-link" to={`/product/${product.id}`}>Подробнее</Link>
-        </article>
-      ))}
-    </div>
-  );
 }
