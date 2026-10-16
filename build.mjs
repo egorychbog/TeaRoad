@@ -11,7 +11,7 @@ await fs.rm(dist, { recursive: true, force: true });
 await fs.mkdir(path.join(dist, 'assets'), { recursive: true });
 
 // Tailwind is pinned for reproducible utility generation without shipping its compiler to the browser.
-execSync('npx --yes @tailwindcss/cli@4.1.17 -i src/styles.css -o dist/assets/app.css --minify', {
+execSync('npx --yes tailwindcss@3.4.17 -c tailwind.config.cjs -i src/styles.css -o dist/assets/app.css --minify', {
   cwd: root,
   stdio: 'inherit',
 });
