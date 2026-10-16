@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { build } from 'esbuild';
+import { execSync } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -9,8 +10,18 @@ const dist = path.join(root, 'dist');
 await fs.rm(dist, { recursive: true, force: true });
 await fs.mkdir(path.join(dist, 'assets'), { recursive: true });
 
+// Tailwind is pinned for reproducible utility generation without shipping its compiler to the browser.
+execSync('npx --yes tailwindcss@3.4.17 -c tailwind.config.cjs -i src/styles.css -o dist/assets/app.css --minify', {
+  cwd: root,
+  stdio: 'inherit',
+});
+
 await build({
-  entryPoints: ['src/main.jsx'],
+  entryPoints: [{ in: 'src/main.jsx', out: 'app' }],
+  outdir: path.join(dist, 'assets'),
+  entryNames: '[name]',
+  chunkNames: 'chunks/[name]-[hash]',
+  splitting: true,
   define: {
     'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || ''),
     'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''),
@@ -20,10 +31,6 @@ await build({
   sourcemap: false,
   format: 'esm',
   jsx: 'automatic',
-  loader: {
-    '.css': 'css',
-  },
-  outfile: 'dist/assets/app.js',
 });
 
 const html = await fs.readFile('index.html', 'utf8');
@@ -33,7 +40,7 @@ const outputHtml = html
     '    <link rel="stylesheet" href="/assets/app.css" />\n  </head>',
   )
   .replace(
-    '<script type="module" src="/src/App.jsx"></script>',
+    '<script type="module" src="/src/main.jsx"></script>',
     '<script type="module" src="/assets/app.js"></script>',
   );
 
@@ -42,7 +49,5 @@ await fs.writeFile(path.join(dist, 'index.html'), outputHtml);
 try {
   await fs.cp(path.join(root, 'public'), dist, { recursive: true });
 } catch (error) {
-  if (error.code !== 'ENOENT') {
-    throw error;
-  }
+  if (error.code !== 'ENOENT') throw error;
 }
