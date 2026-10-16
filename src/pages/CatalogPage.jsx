@@ -2,6 +2,7 @@ import { filterOptions } from '../data/siteContent.js';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BackLink, EmptyState } from '../components/SiteChrome.jsx';
+import { ProductGrid } from '../components/ProductGrid.jsx';
 
 
 export function Catalog({ products, addToCart, loading = false, error = '' }) {

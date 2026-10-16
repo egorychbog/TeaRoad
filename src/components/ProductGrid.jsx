@@ -20,7 +20,7 @@ export function ProductGrid({ products, addToCart, compact = false }) {
             <img loading="lazy" decoding="async" src={product.image} alt={product.name} />
           </Link>
           <span className="stock">В наличии</span>
-          <h3>{product.name}</h3>
+          <h3 className="text-base font-semibold leading-6 text-stone-900">{product.name}</h3>
           <p>{product.weight} · {product.category.toLowerCase()}</p>
           <div className="price-row">
             <strong>{money(product.price)}</strong>
