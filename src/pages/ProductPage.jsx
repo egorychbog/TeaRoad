@@ -50,19 +50,19 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
   }
 
   return (
-    <div className="product-page">
+    <div className="product-page mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-2 lg:items-start">
       <BackLink to="/catalog" label="Вернуться в каталог" />
-      <p className="breadcrumbs">Каталог / {product.category} / Чайники</p>
-      <div className="product-photo">
+      <p className="breadcrumbs mb-4 text-sm text-stone-500 lg:col-span-2">Каталог / {product.category} / Чайники</p>
+      <div className="product-photo aspect-square overflow-hidden rounded-3xl border border-stone-200 bg-white p-4 shadow-sm">
         <img className="h-full w-full object-contain" loading="eager" fetchPriority="high" decoding="async" src={product.image} alt={product.name} />
       </div>
-      <section className="product-info">
-        <h1>{product.name}</h1>
-        <p>{product.description}</p>
-        <strong className="product-price">{money(product.price)}</strong>
+      <section className="product-info space-y-5 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-4xl">{product.name}</h1>
+        <p className="text-base leading-7 text-stone-600">{product.description}</p>
+        <strong className="product-price block text-3xl font-bold tracking-tight text-emerald-950">{money(product.price)}</strong>
         <span className="stock">Всего 1 шт.</span>
         <p className="product-meta">Мастерская: Тин Юйнян<br />Обжиг: дровяной.</p>
-        <div className="product-actions">
+        <div className="product-actions flex flex-wrap gap-3">
           <button className="button dark" onClick={handleAdd}>
             {added ? 'Добавлено' : 'Добавить в корзину'}
           </button>
@@ -75,7 +75,7 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
           <span>2 718 ₽ в Сплит</span>
         </div>
       </section>
-      <p className="product-description">{product.details || product.description}</p>
+      <p className="product-description text-base leading-7 text-stone-600 lg:col-span-2">{product.details || product.description}</p>
       <div className="workshop-strip">
         <img loading="lazy" decoding="async" src={asset('web-ru-kiln-set.jpg')} alt="" />
       </div>

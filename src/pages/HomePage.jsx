@@ -42,22 +42,22 @@ export function Home({ home }) {
           },
         ]}
       />
-      <section>
-        <h2>Выберите сценарий</h2>
-        <div className="scenario-grid">
+      <section className="space-y-5">
+        <h2 className="text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl">Выберите сценарий</h2>
+        <div className="scenario-grid grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {home.scenarios.map((scenario) => (
-            <article className="scenario-card" key={scenario.title}>
-              <img loading="lazy" decoding="async" src={scenario.image} alt="" />
-              <div>
-                <h3>{scenario.title}</h3>
-                <p>{scenario.text}</p>
-                <Link to={scenario.target}>Открыть</Link>
+            <article className="scenario-card group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg" key={scenario.title}>
+              <img className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy" decoding="async" src={scenario.image} alt="" />
+              <div className="space-y-2 p-5">
+                <h3 className="text-lg font-semibold text-stone-900">{scenario.title}</h3>
+                <p className="text-sm leading-6 text-stone-600">{scenario.text}</p>
+                <Link className="inline-flex pt-1 text-sm font-semibold text-emerald-800 hover:text-emerald-950" to={scenario.target}>Открыть →</Link>
               </div>
             </article>
           ))}
         </div>
       </section>
-      <section>
+      <section className="space-y-5">
         <div className="section-head">
           <div>
             <p className="kicker">Каждую неделю</p>
@@ -65,15 +65,15 @@ export function Home({ home }) {
           </div>
           <Link className="button light section-action" to="/promotions">Все акции</Link>
         </div>
-        <div className="week-promo-grid">
+        <div className="week-promo-grid grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {home.weekPromos.map((promo) => (
-            <article className="week-promo-card" key={promo.title}>
-              <img loading="lazy" decoding="async" src={promo.image} alt={promo.title} />
-              <div>
-                <span>{promo.code}</span>
-                <h3>{promo.title}</h3>
-                <p>{promo.text}</p>
-                <Link to={promo.to}>Открыть</Link>
+            <article className="week-promo-card group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={promo.title}>
+              <img className="h-44 w-full object-cover" loading="lazy" decoding="async" src={promo.image} alt={promo.title} />
+              <div className="space-y-2 p-5">
+                <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900">{promo.code}</span>
+                <h3 className="text-lg font-semibold text-stone-900">{promo.title}</h3>
+                <p className="text-sm leading-6 text-stone-600">{promo.text}</p>
+                <Link className="inline-flex pt-1 text-sm font-semibold text-emerald-800 hover:text-emerald-950" to={promo.to}>Открыть →</Link>
               </div>
             </article>
           ))}
@@ -89,16 +89,16 @@ export function Home({ home }) {
         </div>
         <ProductGrid products={home.weekProducts} />
       </section>
-      <section className="tea-table-builder">
+      <section className="tea-table-builder space-y-5 rounded-3xl border border-stone-200 bg-white p-5 sm:p-8">
         <div className="section-head">
           <div>
             <p className="kicker">Готовый сценарий</p>
             <h2>Собрать свой чайный стол</h2>
           </div>
         </div>
-        <div className="builder-grid">
+        <div className="builder-grid grid grid-cols-1 gap-3 md:grid-cols-3">
           {home.teaTable.map((step) => (
-            <Link className="builder-card" key={step.title} to={step.to}>
+            <Link className="builder-card rounded-2xl border border-stone-200 bg-stone-50 p-5 transition hover:border-emerald-300 hover:bg-emerald-50/60" key={step.title} to={step.to}>
               <h3>{step.title}</h3>
               <p>{step.text}</p>
               <span>Выбрать</span>
@@ -116,8 +116,8 @@ export function Home({ home }) {
         </div>
       </section>
       <Faq />
-      <section>
-        <h2>Популярное сейчас</h2>
+      <section className="space-y-5">
+        <h2 className="text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl">Популярное сейчас</h2>
         <ProductGrid products={home.popular} compact />
       </section>
     </div>
@@ -128,17 +128,17 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="faq-section">
+    <section className="faq-section rounded-3xl border border-stone-200 bg-white p-5 shadow-sm sm:p-8">
       <div className="section-head">
         <div>
           <p className="kicker">Помощь</p>
           <h2>Частые вопросы</h2>
         </div>
       </div>
-      <div className="faq-list">
+      <div className="faq-list divide-y divide-stone-200">
         {faqItems.map((item, index) => (
           <article className={openIndex === index ? 'open' : ''} key={item.question}>
-            <button type="button" onClick={() => setOpenIndex(openIndex === index ? -1 : index)}>
+            <button className="flex w-full items-center justify-between gap-4 py-4 text-left text-base font-semibold text-stone-900" type="button" onClick={() => setOpenIndex(openIndex === index ? -1 : index)}>
               {item.question}
               <span>{openIndex === index ? '−' : '+'}</span>
             </button>

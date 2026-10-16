@@ -84,7 +84,7 @@ export function Auth({ mode }) {
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page flex min-h-[65vh] flex-col items-center justify-center gap-5 py-10">
       <BackLink to="/" label="На главную" />
       <form className="auth-card mx-auto w-full max-w-md rounded-3xl border border-stone-200 bg-white p-6 shadow-xl sm:p-8" onSubmit={handleSubmit}>
         <strong>ЧАЙНЫЙ ПУТЬ</strong>
@@ -93,8 +93,8 @@ export function Auth({ mode }) {
           <Link className={mode === 'register' ? 'active' : ''} to="/register">Регистрация</Link>
           <Link className={mode === 'recover' ? 'active' : ''} to="/recover">Пароль</Link>
         </div>
-        <h1>{isPasswordReset ? 'Новый пароль' : isRecover ? 'Восстановление пароля' : isRegister ? 'Создать аккаунт' : 'Вход'}</h1>
-        <p>
+        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">{isPasswordReset ? 'Новый пароль' : isRecover ? 'Восстановление пароля' : isRegister ? 'Создать аккаунт' : 'Вход'}</h1>
+        <p className="mt-2 leading-7 text-stone-600">
           {isPasswordReset
             ? 'Введи новый пароль для аккаунта.'
             : isRecover
@@ -102,20 +102,20 @@ export function Auth({ mode }) {
               : 'После входа можно сохранять избранное, корзину и историю заказов.'}
         </p>
         {!isPasswordReset && (
-          <label>
+          <label className="mt-4 grid gap-1.5 text-sm font-medium text-stone-700">
             E-mail
-            <input name="email" type="email" autoComplete="email" placeholder="example@mail.ru" required />
+            <input className="w-full" name="email" type="email" autoComplete="email" placeholder="example@mail.ru" required />
           </label>
         )}
         {(isPasswordReset || !isRecover) && (
-          <label>
+          <label className="mt-4 grid gap-1.5 text-sm font-medium text-stone-700">
             {isPasswordReset ? 'Новый пароль' : 'Пароль'}
-            <input name="password" type="password" minLength={6} autoComplete={isPasswordReset ? 'new-password' : isRegister ? 'new-password' : 'current-password'} placeholder="Минимум 6 символов" required />
+            <input className="w-full" name="password" type="password" minLength={6} autoComplete={isPasswordReset ? 'new-password' : isRegister ? 'new-password' : 'current-password'} placeholder="Минимум 6 символов" required />
           </label>
         )}
         {error && <p className="field-error">{error}</p>}
         {message && <p className="auth-message">{message}</p>}
-        <button className="button dark" type="submit" disabled={busy}>
+        <button className="button dark mt-4 w-full" type="submit" disabled={busy}>
           {busy ? 'Подождите...' : isPasswordReset ? 'Сохранить новый пароль' : isRecover ? 'Отправить ссылку' : isRegister ? 'Зарегистрироваться' : 'Войти'}
         </button>
         <small>

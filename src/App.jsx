@@ -73,9 +73,9 @@ function App() {
               path="/profile"
               element={
                 authLoading ? (
-                  <div className="simple-page"><p>Проверяем авторизацию...</p></div>
+                  <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-500 shadow-sm" role="status">Проверяем авторизацию...</div>
                 ) : !session?.user ? (
-                  <div className="simple-page">
+                  <div className="simple-page mx-auto w-full max-w-7xl space-y-5">
                     <BackLink to="/" label="На главную" />
                     <EmptyState
                       title="Войдите в аккаунт"
@@ -84,7 +84,7 @@ function App() {
                     />
                   </div>
                 ) : profileLoading ? (
-                  <div className="simple-page"><p>Загружаем профиль...</p></div>
+                  <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-500 shadow-sm" role="status">Загружаем профиль...</div>
                 ) : profileError ? (
                   <div className="simple-page">
                     <EmptyState title="Не удалось загрузить профиль" text={profileError} action={<button className="button dark" onClick={() => window.location.reload()}>Повторить</button>} />

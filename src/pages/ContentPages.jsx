@@ -7,7 +7,7 @@ import { ProductGrid } from '../components/ProductGrid.jsx';
 
 export function Promotions({ promotions }) {
   return (
-    <div className="page-stack">
+    <div className="page-stack mx-auto w-full max-w-7xl space-y-8 sm:space-y-12">
       <section className="back-section">
         <BackLink to="/" label="На главную" />
       </section>
@@ -20,9 +20,9 @@ export function Promotions({ promotions }) {
       />
       <section>
         <h2>Текущие акции</h2>
-        <div className="promo-grid">
+        <div className="promo-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {promotions.promos.map((promo) => (
-            <article className={`promo-card ${promo.tone}`} key={promo.title}>
+            <article className={`promo-card flex flex-col items-start gap-3 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm ${promo.tone}`} key={promo.title}>
               <strong>{promo.type}</strong>
               <h3>{promo.title}</h3>
               <p>{promo.text}</p>
@@ -52,9 +52,9 @@ export function About({ about }) {
       />
       <section>
         <h2>О компании</h2>
-        <div className="about-grid">
+        <div className="about-grid grid grid-cols-1 gap-4 md:grid-cols-3">
           {about.cards.map((card, index) => (
-            <article className={index === 2 ? 'clay-card' : index === 1 ? 'green-card' : ''} key={card.title}>
+            <article className={`rounded-2xl border border-stone-200 bg-white p-6 shadow-sm ${index === 2 ? 'clay-card' : index === 1 ? 'green-card' : ''}`} key={card.title}>
               <h3>{card.title}</h3>
               <p>{card.text}</p>
             </article>
@@ -72,7 +72,7 @@ export function About({ about }) {
 
 export function NotFound() {
   return (
-    <div className="simple-page">
+    <div className="simple-page mx-auto w-full max-w-7xl space-y-6">
       <BackLink to="/" label="На главную" />
       <EmptyState
         title="Страница не найдена"
@@ -87,7 +87,7 @@ export function Delivery() {
   return (
     <div className="simple-page">
       <BackLink to="/" label="На главную" />
-      <h1>Доставка</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Доставка</h1>
       <div className="about-grid">
         <article><h3>Курьер</h3><p>1-2 дня по Новосибирску, бережная упаковка посуды.</p></article>
         <article><h3>Пункт выдачи</h3><p>2-4 дня по России, трек после подтверждения заказа.</p></article>
@@ -118,7 +118,7 @@ export function Picker({ products, addToCart }) {
   }
 
   return (
-    <div className="picker-page">
+    <div className="picker-page mx-auto w-full max-w-5xl space-y-6">
       <BackLink to="/" label="На главную" />
       <HeroBanner
         image={heroImages.picker}
@@ -127,7 +127,7 @@ export function Picker({ products, addToCart }) {
         text="Несколько вопросов - и получим подходящие варианты."
       />
       <p>Шаг {step + 1} из 4</p>
-      <h1>{recommendations.length ? 'Рекомендации' : question.title}</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">{recommendations.length ? 'Рекомендации' : question.title}</h1>
       {recommendations.length ? (
         <>
           <ProductGrid products={recommendations} addToCart={addToCart} compact />
@@ -137,9 +137,9 @@ export function Picker({ products, addToCart }) {
         </>
       ) : (
         <>
-          <div className="answer-grid">
+          <div className="answer-grid grid grid-cols-1 gap-3 sm:grid-cols-2">
             {question.options.map((option) => (
-              <button key={option} onClick={nextAnswer}>{option}</button>
+              <button className="rounded-2xl border border-stone-200 bg-white p-5 text-left font-medium text-stone-800 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50" type="button" key={option} onClick={nextAnswer}>{option}</button>
             ))}
           </div>
           <div className="step-pills">

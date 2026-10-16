@@ -43,14 +43,14 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
   }
 
   return (
-    <div className="catalog-page mx-auto w-full max-w-7xl">
-      <div className="page-title">
+    <div className="catalog-page mx-auto grid w-full max-w-7xl gap-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:items-start">
+      <div className="page-title mb-6">
         <BackLink to="/" label="На главную" />
-        <h1>Каталог</h1>
-        <p>{loading ? 'Загрузка товаров...' : error ? 'Ошибка загрузки' : visibleProducts.length + ' из ' + products.length + ' товаров'}</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Каталог</h1>
+        <p className="mt-2 text-sm text-stone-500">{loading ? 'Загрузка товаров...' : error ? 'Ошибка загрузки' : visibleProducts.length + ' из ' + products.length + ' товаров'}</p>
       </div>
       <aside className="filters self-start rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-        <h2>Фильтры</h2>
+        <h2 className="mb-4 text-lg font-semibold text-stone-900">Фильтры</h2>
         <FilterGroup title="Категория" type="categories" items={filterOptions.categories} selected={filters.categories} onToggle={toggleFilter} />
         <FilterGroup title="Вкус" type="tastes" items={filterOptions.tastes} selected={filters.tastes} onToggle={toggleFilter} />
         <FilterGroup title="Цена" type="prices" items={filterOptions.prices} selected={filters.prices} onToggle={toggleFilter} />
@@ -60,7 +60,7 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
         </div>
       </aside>
       <section className="catalog-content min-w-0">
-        <p className="sort-label">Сортировка: По названию</p>
+        <p className="sort-label mb-4 text-sm text-stone-500">Сортировка: По названию</p>
         {loading ? (
           <p>Загружаем каталог из Supabase...</p>
         ) : error ? (
@@ -85,10 +85,10 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
 
 export function FilterGroup({ title, type, items, selected, onToggle }) {
   return (
-    <div className="filter-group">
-      <strong>{title}</strong>
+    <div className="filter-group space-y-2 border-b border-stone-100 py-4 first:pt-0 last:border-0">
+      <strong className="mb-2 block text-sm font-semibold text-stone-800">{title}</strong>
       {items.map((item) => (
-        <label className={selected.includes(item) ? 'active' : ''} key={item}>
+        <label className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition hover:bg-stone-50 ${selected.includes(item) ? 'bg-emerald-50 font-medium text-emerald-950' : 'text-stone-600'}`} key={item}>
           <input
             type="checkbox"
             checked={selected.includes(item)}

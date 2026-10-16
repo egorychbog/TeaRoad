@@ -48,7 +48,7 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-950 text-amber-50 shadow-sm"><Leaf size={23} strokeWidth={1.8} /></span>
         <span className="hidden sm:inline">ЧАЙНЫЙ ПУТЬ</span>
       </Link>
-      <nav className="desktop-nav hidden flex-1 items-center gap-1 lg:flex">
+      <nav className="desktop-nav hidden flex-1 items-center gap-1 xl:flex">
         <NavLink to="/">Главная</NavLink>
         <NavLink to="/catalog">Каталог</NavLink>
         <NavLink to="/gifts">Подарки</NavLink>
@@ -64,26 +64,26 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
           placeholder="Найти чай, посуду, подарок..."
         />
       </label>
-      <Link className="nav-link promo-link" to="/promotions">
+      <Link className="nav-link promo-link inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950" to="/promotions">
         <TicketPercent size={16} /> Акции
       </Link>
-      <Link className={`nav-icon heart-link ${favoriteCount ? 'has-items' : ''}`} to="/favorites" aria-label="Избранное">
+      <Link className={`nav-icon heart-link inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-stone-600 transition hover:bg-stone-100 hover:text-rose-700 ${favoriteCount ? 'has-items' : ''}`} to="/favorites" aria-label="Избранное">
         <Heart size={19} />
         {favoriteCount > 0 && <span>{favoriteCount}</span>}
       </Link>
-      <Link className="nav-link" to="/cart">
+      <Link className="nav-link inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950" to="/cart">
         Корзина {cartCount > 0 && <span>{cartCount}</span>}
       </Link>
       {session?.user ? (
         <>
-          <Link className="nav-link" to="/profile">Профиль</Link>
-          <button className="nav-link" type="button" onClick={onSignOut}>Выйти</button>
+          <Link className="nav-link inline-flex shrink-0 items-center rounded-xl px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950" to="/profile">Профиль</Link>
+          <button className="nav-link inline-flex shrink-0 items-center rounded-xl px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950" type="button" onClick={onSignOut}>Выйти</button>
         </>
       ) : (
-        <Link className="nav-link" to="/login">Войти</Link>
+        <Link className="nav-link inline-flex shrink-0 items-center rounded-xl px-3 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-100 hover:text-stone-950" to="/login">Войти</Link>
       )}
       <button
-        className="mobile-toggle"
+        className="mobile-toggle inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-stone-700 transition hover:bg-stone-100 xl:hidden"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Меню"
       >
@@ -95,7 +95,7 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
 
 export function MobileNav({ close }) {
   return (
-    <nav className="mobile-nav fixed inset-x-4 top-24 z-50 grid gap-1 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl lg:hidden">
+    <nav className="mobile-nav fixed inset-x-4 top-24 z-50 grid gap-1 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl xl:hidden">
       {[
         ['/', 'Главная'],
         ['/catalog', 'Каталог'],
@@ -123,8 +123,8 @@ export function HeroBanner({ image, label, title, text, action }) {
       <div className="banner-overlay" />
       <div className="banner-copy relative z-10 mx-auto w-full max-w-7xl px-6 py-14 sm:px-10 md:py-20">
         {label && <p className="kicker">{label}</p>}
-        <h1>{title}</h1>
-        {text && <p>{text}</p>}
+        <h1 className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">{title}</h1>
+        {text && <p className="mt-4 max-w-2xl text-base leading-7 text-white/90 sm:text-lg">{text}</p>}
         {action}
       </div>
     </section>
@@ -153,18 +153,18 @@ export function ImageCarousel({ slides }) {
   }
 
   return (
-    <section className="carousel-section">
-      <div className="carousel-copy">
+    <section className="carousel-section grid gap-6 rounded-3xl border border-stone-200 bg-white p-5 shadow-sm md:grid-cols-2 md:items-center md:p-8">
+      <div className="carousel-copy space-y-4">
         <p className="kicker">Подборка</p>
         <h2>{current.title}</h2>
         <p>{current.text}</p>
         <Link className="button dark" to={current.to}>Открыть</Link>
       </div>
-      <div className="carousel-visual">
+      <div className="carousel-visual relative min-w-0 overflow-hidden rounded-2xl bg-stone-100">
         <img className="h-full w-full rounded-2xl object-cover" loading="lazy" decoding="async" src={current.image} alt={current.title} />
-        <button type="button" onClick={prevSlide} aria-label="Предыдущий слайд">‹</button>
-        <button type="button" onClick={nextSlide} aria-label="Следующий слайд">›</button>
-        <div className="carousel-dots">
+        <button className="absolute left-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-xl text-stone-900 shadow transition hover:bg-white" type="button" onClick={prevSlide} aria-label="Предыдущий слайд">‹</button>
+        <button className="absolute right-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-xl text-stone-900 shadow transition hover:bg-white" type="button" onClick={nextSlide} aria-label="Следующий слайд">›</button>
+        <div className="carousel-dots absolute bottom-3 left-0 right-0 z-10 flex items-center justify-center gap-2">
           {slides.map((slide, slideIndex) => (
             <button
               className={slideIndex === index ? 'active' : ''}

@@ -28,9 +28,9 @@ export function ProfileSetup({ email, onSave }) {
   }
 
   return (
-    <div className="profile-page mx-auto w-full max-w-6xl">
+    <div className="profile-page mx-auto w-full max-w-6xl space-y-6">
       <div className="page-title"><BackLink to="/" label="На главную" /></div>
-      <h1>Личный кабинет</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Личный кабинет</h1>
       <EmptyState
         title="Профиль ещё не создан"
         text="Регистрация создала аккаунт, но профиль будет сохранён только после заполнения этой формы."
@@ -73,10 +73,10 @@ export function Profile({ profile, email, updateProfile, favoriteCount, cartCoun
   }
 
   return (
-    <div className="profile-page">
+    <div className="profile-page mx-auto w-full max-w-6xl space-y-6">
       <div className="page-title"><BackLink to="/" label="На главную" /></div>
-      <h1>Личный кабинет</h1>
-      <aside className="profile-menu">
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Личный кабинет</h1>
+      <aside className="profile-menu flex flex-wrap gap-2 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
         <strong>Покупатель</strong>
         <Link className="active" to="/profile">Профиль</Link>
         <Link to="/profile#orders">Мои заказы</Link>
@@ -84,8 +84,8 @@ export function Profile({ profile, email, updateProfile, favoriteCount, cartCoun
         <Link to="/cart">Корзина</Link>
         <button className="nav-link" type="button" onClick={onSignOut}>Выйти из аккаунта</button>
       </aside>
-      <section className="profile-dashboard">
-        <form className="profile-card" onSubmit={handleSave}>
+      <section className="profile-dashboard grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <form className="profile-card space-y-4 rounded-2xl border border-stone-200 bg-white p-6 shadow-sm" onSubmit={handleSave}>
           <h2>Данные профиля</h2>
           <label>E-mail аккаунта<input type="email" value={email || ''} readOnly /></label>
           <label>Имя<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} required /></label>
@@ -94,17 +94,17 @@ export function Profile({ profile, email, updateProfile, favoriteCount, cartCoun
           {message && <p className="auth-message">{message}</p>}
           <button className="button dark" type="submit" disabled={saving}>{saving ? 'Сохраняем...' : 'Сохранить'}</button>
         </form>
-        <div className="profile-stats">
+        <div className="profile-stats grid gap-3 sm:grid-cols-2">
           <Link to="/favorites"><Heart size={18} /> Избранное: {favoriteCount}</Link>
           <Link to="/cart"><ShoppingCart size={18} /> В корзине: {cartCount}</Link>
           <Link to="/promotions"><TicketPercent size={18} /> Промокоды</Link>
           <Link to="/catalog">Каталог товаров</Link>
         </div>
       </section>
-      <section className="orders" id="orders">
+      <section className="orders space-y-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm" id="orders">
         <h2>Мои заказы</h2>
         {orders.length ? orders.map((order) => (
-          <article key={order.id}>
+          <article className="grid gap-2 rounded-xl border border-stone-100 bg-stone-50 p-4 sm:grid-cols-[1fr_auto_auto_auto] sm:items-center" key={order.id}>
             <strong>Заказ №{order.number}</strong>
             <span>{order.date}</span>
             <mark>{order.status}</mark>
