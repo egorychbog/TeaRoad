@@ -46,8 +46,16 @@ const outputHtml = html
 
 await fs.writeFile(path.join(dist, 'index.html'), outputHtml);
 
+// Copy public files into the output root (not into a nested /public directory).
 try {
-  await fs.cp(path.join(root, 'public'), dist, { recursive: true });
+  const publicDir = path.join(root, 'public');
+  for (const entry of await fs.readdir(publicDir)) {
+    await fs.cp(
+      path.join(publicDir, entry),
+      path.join(dist, entry),
+      { recursive: true, force: true },
+    );
+  }
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
 }
