@@ -37,6 +37,13 @@ const outputHtml = html
     '<script type="module" src="/assets/app.js"></script>',
   );
 
+if (!outputHtml.includes('<link rel="stylesheet" href="/assets/app.css" />')) {
+  throw new Error('Build failed: generated index.html is missing app.css.');
+}
+if (!outputHtml.includes('<script type="module" src="/assets/app.js"></script>')) {
+  throw new Error('Build failed: generated index.html is missing the bundled app.js entry point.');
+}
+
 await fs.writeFile(path.join(dist, 'index.html'), outputHtml);
 
 // Copy the contents of public into dist, including every original image in public/assets.
