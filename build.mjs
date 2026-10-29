@@ -46,3 +46,34 @@ try {
     throw error;
   }
 }
+
+// Validate the production artifact before it can be published. A missing source image
+// should fail the build rather than silently turn the image URL into the SPA HTML.
+const requiredOutputFiles = ['index.html', 'assets/app.js', 'assets/app.css'];
+for (const file of requiredOutputFiles) {
+  try {
+    await fs.access(path.join(dist, file));
+  } catch {
+    throw new Error(`Build failed: required output file is missing: ${file}`);
+  }
+}
+
+const appSource = await fs.readFile(path.join(root, 'src/App.jsx'), 'utf8');
+const referencedAssets = new Set(
+  [...appSource.matchAll(/asset\\(\\s*['"`]([^'"`]+)['"`]\\s*\\)/g)].map((match) => match[1]),
+);
+for (const match of appSource.matchAll(/['"`]\\/assets\\/([^'"`]+)['"`]/g)) {
+  referencedAssets.add(match[1]);
+}
+
+const missingAssets = [];
+for (const name of referencedAssets) {
+  try {
+    await fs.access(path.join(dist, 'assets', name));
+  } catch {
+    missingAssets.push(name);
+  }
+}
+if (missingAssets.length > 0) {
+  throw new Error(`Build failed: missing referenced image assets: ${missingAssets.join(', ')}`);
+}
