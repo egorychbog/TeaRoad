@@ -1837,3 +1837,47 @@ p {
     padding: 30px 20px;
   }
 }
+
+/* Responsive header: preserve every navigation destination without overlapping
+   the search field or hiding actions on typical laptop-width viewports. */
+@media (min-width: 1061px) and (max-width: 1440px) {
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .search-box {
+    flex: 1 1 260px;
+    min-width: 180px;
+    max-width: none;
+  }
+
+  .mobile-toggle {
+    display: inline-grid;
+    flex: 0 0 auto;
+  }
+
+  .mobile-nav {
+    display: grid;
+    max-width: 1130px;
+    margin: -16px auto 24px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--green-dark);
+  }
+
+  .mobile-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    color: var(--cream);
+    text-align: left;
+  }
+}
