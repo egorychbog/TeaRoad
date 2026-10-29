@@ -60,9 +60,9 @@ for (const file of requiredOutputFiles) {
 
 const appSource = await fs.readFile(path.join(root, 'src/App.jsx'), 'utf8');
 const referencedAssets = new Set(
-  [...appSource.matchAll(/asset\\(\\s*['"`]([^'"`]+)['"`]\\s*\\)/g)].map((match) => match[1]),
+  [...appSource.matchAll(/asset\(\s*['"]([^'"]+)['"]\s*\)/g)].map((match) => match[1]),
 );
-for (const match of appSource.matchAll(/['"`]\\/assets\\/([^'"`]+)['"`]/g)) {
+for (const match of appSource.matchAll(/['"]\/assets\/([^'"]+\.(?:png|jpe?g|webp|svg|ico))['"]/gi)) {
   referencedAssets.add(match[1]);
 }
 
