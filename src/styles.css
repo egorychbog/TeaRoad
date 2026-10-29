@@ -1687,6 +1687,40 @@ p {
   }
 }
 
+/* Keep the full header usable on laptop widths; all links remain in the menu. */
+@media (min-width: 1061px) and (max-width: 1440px) {
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 10px 14px;
+  }
+
+  .desktop-nav {
+    display: none;
+  }
+
+  .search-box {
+    flex: 1 1 260px;
+    min-width: 180px;
+    max-width: none;
+  }
+
+  .mobile-toggle {
+    display: inline-grid;
+    flex: 0 0 auto;
+  }
+
+  .mobile-nav {
+    display: grid;
+    max-width: 1130px;
+    margin: -16px auto 24px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--green-dark);
+  }
+}
+
 @media (max-width: 1060px) {
   .topbar {
     grid-template-columns: auto 1fr auto auto auto;
