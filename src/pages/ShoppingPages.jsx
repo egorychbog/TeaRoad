@@ -15,7 +15,7 @@ export function Favorites({ products, addToCart }) {
         <span className="heart-badge"><Heart size={18} /> {products.length}</span>
       </div>
       {products.length ? (
-        <ProductGrid products={products} addToCart={addToCart} />
+        <ProductGrid products={products} addToCart={addToCart} headingLevel={2} />
       ) : (
         <EmptyState
           title="Пока пусто"
@@ -98,7 +98,7 @@ export function Cart({ cart, changeQuantity, applyPromo }) {
             <article className="cart-item grid grid-cols-[84px_minmax(0,1fr)] items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3 sm:grid-cols-[100px_minmax(0,1fr)_auto] sm:p-4" key={item.productId}>
               <img className="aspect-square w-full rounded-xl object-cover bg-stone-50" loading="lazy" decoding="async" width={800} height={800} src={item.product.image} alt={item.product.name} />
               <div className="min-w-0 py-1">
-                <h3 className="font-semibold text-stone-900">{item.product.name}</h3>
+                <h2 className="font-semibold text-stone-900">{item.product.name}</h2>
                 <p className="mt-2 text-xs text-stone-500">Количество</p>
                 <div className="mt-1 inline-flex items-center gap-3 rounded-xl border border-stone-200 px-2 py-1">
                   <button className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-stone-100" type="button" aria-label="Уменьшить количество" onClick={() => changeQuantity(item.productId, item.quantity - 1)}><Minus size={14} /></button>
