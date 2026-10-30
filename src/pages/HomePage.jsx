@@ -13,6 +13,7 @@ export function Home({ home }) {
         label={home.hero.label}
         title={home.hero.title}
         text={home.hero.text}
+        imageAlt="Чайный стол с китайским чаем и посудой"
         action={
           <div className="button-row">
             <Link className="button clay" to="/catalog">Смотреть каталог</Link>
@@ -47,7 +48,7 @@ export function Home({ home }) {
         <div className="scenario-grid grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {home.scenarios.map((scenario) => (
             <article className="scenario-card group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg" key={scenario.title}>
-              <img className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy" decoding="async" src={scenario.image} alt="" />
+              <img className="h-44 w-full object-cover transition duration-300 group-hover:scale-[1.02]" loading="lazy" decoding="async" width={620} height={360} src={scenario.image} alt={scenario.title} />
               <div className="space-y-2 p-5">
                 <h3 className="text-lg font-semibold text-stone-900">{scenario.title}</h3>
                 <p className="text-sm leading-6 text-stone-600">{scenario.text}</p>
@@ -68,7 +69,7 @@ export function Home({ home }) {
         <div className="week-promo-grid grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {home.weekPromos.map((promo) => (
             <article className="week-promo-card group overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg" key={promo.title}>
-              <img className="h-44 w-full object-cover" loading="lazy" decoding="async" src={promo.image} alt={promo.title} />
+              <img className="h-44 w-full object-cover" loading="lazy" decoding="async" width={720} height={520} src={promo.image} alt={promo.title} />
               <div className="space-y-2 p-5">
                 <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900">{promo.code}</span>
                 <h3 className="text-lg font-semibold text-stone-900">{promo.title}</h3>
@@ -107,7 +108,7 @@ export function Home({ home }) {
         </div>
       </section>
       <section className="production-band grid overflow-hidden rounded-3xl bg-emerald-950 text-white shadow-sm md:grid-cols-2">
-        <img className="h-full w-full object-cover" loading="lazy" decoding="async" src={home.production.image} alt="" />
+        <img className="h-full w-full object-cover" loading="lazy" decoding="async" width={760} height={520} src={home.production.image} alt={home.production.title} />
         <div>
           <p className="kicker">Мастерская магазина</p>
           <h2>{home.production.title}</h2>
