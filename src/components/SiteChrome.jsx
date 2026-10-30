@@ -117,10 +117,10 @@ export function MobileNav({ close }) {
   );
 }
 
-export function HeroBanner({ image, label, title, text, action }) {
+export function HeroBanner({ image, imageAlt, label, title, text, action }) {
   return (
     <section className="hero-banner home-hero relative isolate min-h-[320px] overflow-hidden rounded-3xl shadow-sm sm:min-h-[390px] lg:min-h-[440px]">
-      <img className="absolute inset-0 h-full w-full object-cover" src={image} alt="" loading="eager" fetchPriority="high" decoding="async" />
+      <img className="absolute inset-0 h-full w-full object-cover" src={image} alt={imageAlt || title} width={1280} height={380} loading="eager" fetchPriority="high" decoding="async" />
       <div className="banner-overlay" />
       <div className="banner-copy relative z-10 mx-auto w-full max-w-7xl px-6 py-14 sm:px-10 md:py-20">
         {label && <p className="kicker">{label}</p>}
@@ -162,7 +162,7 @@ export function ImageCarousel({ slides }) {
         <Link className="button dark" to={current.to}>Открыть</Link>
       </div>
       <div className="carousel-visual relative aspect-[4/3] min-w-0 overflow-hidden rounded-2xl bg-stone-100">
-        <img className="h-full w-full rounded-2xl object-cover" loading="lazy" decoding="async" src={current.image} alt={current.title} />
+        <img className="h-full w-full rounded-2xl object-cover" loading="lazy" decoding="async" width={760} height={570} src={current.image} alt={current.title} />
         <button className="absolute left-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-xl text-stone-900 shadow transition hover:bg-white" type="button" onClick={prevSlide} aria-label="Предыдущий слайд">‹</button>
         <button className="absolute right-3 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-xl text-stone-900 shadow transition hover:bg-white" type="button" onClick={nextSlide} aria-label="Следующий слайд">›</button>
         <div className="carousel-dots absolute bottom-3 left-0 right-0 z-10 flex items-center justify-center gap-2">
