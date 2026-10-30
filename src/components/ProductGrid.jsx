@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { money } from '../lib/cartHelpers.js';
 
-export function ProductGrid({ products, addToCart, compact = false }) {
+export function ProductGrid({ products, addToCart, compact = false, headingLevel = 3 }) {
+  const ProductHeading = headingLevel === 2 ? 'h2' : 'h3';
   const [addedId, setAddedId] = useState('');
 
   function handleAdd(productId) {
@@ -21,7 +22,7 @@ export function ProductGrid({ products, addToCart, compact = false }) {
           </Link>
           <div className="flex flex-1 flex-col gap-2 p-4">
             <span className="stock inline-flex w-fit rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">В наличии</span>
-            <h3 className="min-h-12 text-base font-semibold leading-6 text-stone-900">{product.name}</h3>
+            <ProductHeading className="min-h-12 text-base font-semibold leading-6 text-stone-900">{product.name}</ProductHeading>
             <p className="text-sm text-stone-500">{product.weight} · {product.category.toLowerCase()}</p>
             <div className="price-row mt-auto flex items-center justify-between gap-3 pt-3">
             <strong className="text-lg font-bold tracking-tight text-emerald-950">{money(product.price)}</strong>
