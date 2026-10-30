@@ -69,7 +69,7 @@ export function Gifts({ gifts, addToCart }) {
         <div className="gift-grid grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {visibleGifts.map((gift) => (
             <article className="gift-card h-full overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm" key={gift.id}>
-              <img className="aspect-square w-full object-cover" loading="lazy" decoding="async" src={gift.image} alt={gift.name} />
+              <img className="aspect-square w-full object-cover" loading="lazy" decoding="async" width={800} height={800} src={gift.image} alt={gift.name} />
               <span className="stock">{gift.occasion}</span>
               <h3 className="text-lg font-semibold leading-6 text-stone-900">{gift.name}</h3>
               <p className="text-sm leading-6 text-stone-600">{gift.text}</p>
@@ -96,7 +96,7 @@ export function Cart({ cart, changeQuantity, applyPromo }) {
         {cart.items.length ? (
           cart.items.map((item) => (
             <article className="cart-item grid grid-cols-[84px_minmax(0,1fr)] items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3 sm:grid-cols-[100px_minmax(0,1fr)_auto] sm:p-4" key={item.productId}>
-              <img className="aspect-square w-full rounded-xl object-cover bg-stone-50" loading="lazy" decoding="async" src={item.product.image} alt="" />
+              <img className="aspect-square w-full rounded-xl object-cover bg-stone-50" loading="lazy" decoding="async" width={800} height={800} src={item.product.image} alt={item.product.name} />
               <div className="min-w-0 py-1">
                 <h3 className="font-semibold text-stone-900">{item.product.name}</h3>
                 <p className="mt-2 text-xs text-stone-500">Количество</p>
