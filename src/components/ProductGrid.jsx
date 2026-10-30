@@ -17,7 +17,7 @@ export function ProductGrid({ products, addToCart, compact = false }) {
       {products.map((product) => (
         <article className="product-card group flex h-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg" key={product.id}>
           <Link className="image-button block aspect-square overflow-hidden bg-stone-50" to={`/product/${product.id}`}>
-            <img className="h-full w-full object-contain p-4 transition duration-300 group-hover:scale-105" loading="lazy" decoding="async" src={product.image} alt={product.name} />
+            <img className="h-full w-full object-contain p-4 transition duration-300 group-hover:scale-105" loading="lazy" decoding="async" width={800} height={800} src={product.image} alt={product.name} />
           </Link>
           <div className="flex flex-1 flex-col gap-2 p-4">
             <span className="stock inline-flex w-fit rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">В наличии</span>
