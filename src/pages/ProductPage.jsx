@@ -21,6 +21,7 @@ export function ProductRoute({
     return (
       <div className="simple-page">
         <BackLink to="/catalog" label="Вернуться в каталог" />
+        <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">{loading ? 'Загрузка товара...' : 'Товар не найден'}</h1>
         <EmptyState
           title={loading ? 'Загрузка товара...' : 'Товар не найден'}
           text={error || (loading ? 'Получаем информацию из базы данных.' : 'Возможно, товар снят с продажи.')}
