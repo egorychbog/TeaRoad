@@ -80,6 +80,7 @@ function App() {
                 ) : !session?.user ? (
                   <div className="simple-page mx-auto w-full max-w-7xl space-y-5">
                     <BackLink to="/" label="На главную" />
+                    <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Личный кабинет</h1>
                     <EmptyState
                       title="Войдите в аккаунт"
                       text="Профиль доступен после входа. Регистрация сама по себе профиль не создаёт."
