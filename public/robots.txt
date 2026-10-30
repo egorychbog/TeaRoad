@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Private SPA routes use a page-level noindex meta tag.
+# They are intentionally not Disallowed so crawlers can read that directive.
+
+Sitemap: __SITE_URL__/sitemap.xml
