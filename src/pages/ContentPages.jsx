@@ -77,8 +77,9 @@ export function NotFound() {
     <div className="simple-page mx-auto w-full max-w-7xl space-y-6">
       <BackLink to="/" label="На главную" />
       <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Страница не найдена</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-stone-950">Страница не найдена</h1>
       <EmptyState
-        title="Страница не найдена"
+        title="Проверьте адрес страницы"
         text="Такой страницы нет, но каталог и подбор чая работают."
         action={<Link className="button dark" to="/catalog">Открыть каталог</Link>}
       />
@@ -92,9 +93,9 @@ export function Delivery() {
       <BackLink to="/" label="На главную" />
       <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Доставка</h1>
       <div className="about-grid">
-        <article><h3>Курьер</h3><p>1-2 дня по Новосибирску, бережная упаковка посуды.</p></article>
-        <article><h3>Пункт выдачи</h3><p>2-4 дня по России, трек после подтверждения заказа.</p></article>
-        <article className="green-card"><h3>Оплата</h3><p>Карта, долями или сплит - итог видно до оплаты.</p></article>
+        <article><h2>Курьер</h2><p>1-2 дня по Новосибирску, бережная упаковка посуды.</p></article>
+        <article><h2>Пункт выдачи</h2><p>2-4 дня по России, трек после подтверждения заказа.</p></article>
+        <article className="green-card"><h2>Оплата</h2><p>Карта, долями или сплит - итог видно до оплаты.</p></article>
       </div>
     </div>
   );
