@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 
 const DEFAULT_SITE_URL = 'https://chai-path-complete.vercel.app';
 const SITE_URL = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
@@ -65,26 +64,6 @@ const privatePages = {
   },
 };
 
-function updateMeta(attribute, key, content) {
-  let element = document.head.querySelector(`meta[${attribute}="${key}"]`);
-  if (!element) {
-    element = document.createElement('meta');
-    element.setAttribute(attribute, key);
-    document.head.appendChild(element);
-  }
-  element.setAttribute('content', content);
-}
-
-function updateCanonical(href) {
-  let element = document.head.querySelector('link[rel="canonical"]');
-  if (!element) {
-    element = document.createElement('link');
-    element.setAttribute('rel', 'canonical');
-    document.head.appendChild(element);
-  }
-  element.setAttribute('href', href);
-}
-
 export function SeoMeta({ pathname = '/', products = [] }) {
   const path = pathname.replace(/\/+$/, '') || '/';
   const productId = path.startsWith('/product/') ? decodeURIComponent(path.split('/')[2] || '') : '';
@@ -119,23 +98,23 @@ export function SeoMeta({ pathname = '/', products = [] }) {
   const canonical = `${SITE_URL}${path === '/' ? '/' : path}`;
   const image = `${SITE_URL}/assets/hero-tea.jpg`;
 
-  useEffect(() => {
-    document.title = title;
-    updateMeta('name', 'description', description);
-    updateMeta('name', 'robots', noIndex ? 'noindex, nofollow' : 'index, follow');
-    updateMeta('property', 'og:title', title);
-    updateMeta('property', 'og:description', description);
-    updateMeta('property', 'og:type', 'website');
-    updateMeta('property', 'og:url', canonical);
-    updateMeta('property', 'og:image', image);
-    updateMeta('property', 'og:image:alt', 'Чайный стол и китайский чай — магазин «Чайный путь»');
-    updateMeta('property', 'og:site_name', 'Чайный путь');
-    updateMeta('property', 'og:locale', 'ru_RU');
-    updateMeta('name', 'twitter:card', 'summary_large_image');
-    updateMeta('name', 'twitter:title', title);
-    updateMeta('name', 'twitter:description', description);
-    updateCanonical(canonical);
-  }, [title, description, noIndex, canonical, image]);
-
-  return null;
+  return (
+    <>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
+      <link rel="canonical" href={canonical} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={canonical} />
+      <meta property="og:image" content={image} />
+      <meta property="og:image:alt" content="Чайный стол и китайский чай — магазин «Чайный путь»" />
+      <meta property="og:site_name" content="Чайный путь" />
+      <meta property="og:locale" content="ru_RU" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+    </>
+  );
 }
