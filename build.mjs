@@ -49,10 +49,23 @@ await fs.writeFile(path.join(dist, 'index.html'), outputHtml);
 
 const siteUrl = (process.env.VITE_SITE_URL || 'https://chai-path-complete.vercel.app').replace(/\/+$/, '');
 
+// Copy files from public into the output root (not into dist/public).
+const publicDir = path.join(root, 'public');
 try {
-  await fs.cp(path.join(root, 'public'), dist, { recursive: true });
+  for (const entry of await fs.readdir(publicDir)) {
+    await fs.cp(
+      path.join(publicDir, entry),
+      path.join(dist, entry),
+      { recursive: true, force: true },
+    );
+  }
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
+}
+
+// Check required SEO files before publishing.
+for (const filename of ['robots.txt', 'sitemap.xml']) {
+  await fs.access(path.join(dist, filename));
 }
 
 // Inject the public production origin into canonical URLs, robots.txt and sitemap.xml.
