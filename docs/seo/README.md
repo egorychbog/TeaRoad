@@ -9,7 +9,8 @@
 - Account, authentication, favourites, cart and checkout routes receive `noindex, nofollow` meta directives and an `X-Robots-Tag` response header in Nginx/Vercel.
 - `robots.txt` and `sitemap.xml` are published from `public/`. The build replaces `__SITE_URL__` with `VITE_SITE_URL`.
 - The sitemap lists public static routes only. Product pages are loaded dynamically from Supabase, so they are not enumerated in this static sitemap; generating product URLs from the catalogue is a future improvement.
-- Meaningful image alternative text and intrinsic width/height attributes are supplied for the main content images.
+- Meaningful image alternative text and intrinsic width/height attributes are supplied for the main content images. Non-critical images are lazy-loaded; the main hero is eagerly loaded and preloaded.
+- Original JPEG/PNG assets have not yet been batch-converted to WebP/AVIF. That is a remaining image-weight optimization; the current pass addresses lazy loading, dimensions and text compression without changing the image files.
 - Tailwind is built and minified with the CLI; route-level React lazy loading/code splitting is retained.
 - Nginx gzip compression is enabled for text resources. Existing cache rules remain: hashed chunks are immutable, application entry files are revalidated, and images are cached for seven days.
 - The app uses a system font stack; there are no separately downloaded web fonts that need `font-display: swap`.
