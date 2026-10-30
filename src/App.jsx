@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { fallbackAbout, fallbackGifts, fallbackHome, fallbackPromotions, heroImages } from './data/siteContent.js';
 import { BackLink, EmptyState, Header, MobileNav } from './components/SiteChrome.jsx';
 import { useShopState } from './hooks/useShopState.js';
+import { SeoMeta } from './components/SeoMeta.jsx';
 
 const lazyNamed = (loader, name) => lazy(() => loader().then((module) => ({ default: module[name] })));
 const Home = lazyNamed(() => import('./pages/HomePage.jsx'), 'Home');
@@ -23,6 +24,7 @@ const Auth = lazyNamed(() => import('./pages/AuthPage.jsx'), 'Auth');
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     menuOpen, setMenuOpen, query, setQuery, cart, products, productsLoading,
     productsError, session, authLoading, profile, profileLoading, profileError,
@@ -32,6 +34,7 @@ function App() {
 
   return (
    <div className="site-shell min-h-screen bg-amber-50 text-stone-900">
+      <SeoMeta pathname={location.pathname} products={products} />
       <div className="app-frame mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <Header
           menuOpen={menuOpen}
