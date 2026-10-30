@@ -25,6 +25,7 @@ await build({
   define: {
     'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || ''),
     'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''),
+    'import.meta.env.VITE_SITE_URL': JSON.stringify(process.env.VITE_SITE_URL || 'https://chai-path-complete.vercel.app'),
   },
   bundle: true,
   minify: true,
@@ -46,8 +47,17 @@ const outputHtml = html
 
 await fs.writeFile(path.join(dist, 'index.html'), outputHtml);
 
+const siteUrl = (process.env.VITE_SITE_URL || 'https://chai-path-complete.vercel.app').replace(/\\/+$/, '');
+
 try {
   await fs.cp(path.join(root, 'public'), dist, { recursive: true });
 } catch (error) {
   if (error.code !== 'ENOENT') throw error;
+}
+
+// Inject the public production origin into canonical URLs, robots.txt and sitemap.xml.
+for (const filename of ['index.html', 'robots.txt', 'sitemap.xml']) {
+  const filePath = path.join(dist, filename);
+  const content = await fs.readFile(filePath, 'utf8');
+  await fs.writeFile(filePath, content.replaceAll('__SITE_URL__', siteUrl));
 }
