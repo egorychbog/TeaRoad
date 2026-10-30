@@ -47,7 +47,7 @@ const outputHtml = html
 
 await fs.writeFile(path.join(dist, 'index.html'), outputHtml);
 
-const siteUrl = (process.env.VITE_SITE_URL || 'https://chai-path-complete.vercel.app').replace(/\\/+$/, '');
+const siteUrl = (process.env.VITE_SITE_URL || 'https://chai-path-complete.vercel.app').replace(/\/+$/, '');
 
 try {
   await fs.cp(path.join(root, 'public'), dist, { recursive: true });
