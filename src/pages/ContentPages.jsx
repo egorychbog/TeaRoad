@@ -13,6 +13,7 @@ export function Promotions({ promotions }) {
       </section>
       <HeroBanner
         image={promotions.hero.image}
+        imageAlt="Китайский чай и подарочные наборы из ассортимента магазина"
         label="Акции и специальные предложения"
         title="Чайный повод заварить сегодня."
         text="Скидки на чай, наборы и аксессуары. Условия видны до оформления заказа."
@@ -45,6 +46,7 @@ export function About({ about }) {
       </section>
       <HeroBanner
         image={about.hero.image}
+        imageAlt="Чайный набор и посуда для спокойного чаепития"
         label="О магазине"
         title="Чайный путь - магазин для спокойного чаепития."
         text="Китайский чай, посуда, аксессуары и подарочные наборы - с понятным описанием и подбором."
@@ -122,12 +124,13 @@ export function Picker({ products, addToCart }) {
       <BackLink to="/" label="На главную" />
       <HeroBanner
         image={heroImages.picker}
+        imageAlt="Китайский чай для подбора по вкусу и аромату"
         label="Помощь в выборе"
         title="Подберем чай за 60 секунд."
         text="Несколько вопросов - и получим подходящие варианты."
       />
       <p>Шаг {step + 1} из 4</p>
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">{recommendations.length ? 'Рекомендации' : question.title}</h1>
+      <h2 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">{recommendations.length ? 'Рекомендации' : question.title}</h2>
       {recommendations.length ? (
         <>
           <ProductGrid products={recommendations} addToCart={addToCart} compact />
