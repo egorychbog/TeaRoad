@@ -54,7 +54,7 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
       <BackLink to="/catalog" label="Вернуться в каталог" />
       <p className="breadcrumbs mb-4 text-sm text-stone-500 lg:col-span-2">Каталог / {product.category} / Чайники</p>
       <div className="product-photo aspect-square overflow-hidden rounded-3xl border border-stone-200 bg-white p-4 shadow-sm">
-        <img className="h-full w-full object-contain" loading="eager" fetchPriority="high" decoding="async" src={product.image} alt={product.name} />
+        <img className="h-full w-full object-contain" loading="eager" fetchPriority="high" decoding="async" width={900} height={900} src={product.image} alt={product.name} />
       </div>
       <section className="product-info space-y-5 rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
         <h1 className="text-3xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-4xl">{product.name}</h1>
@@ -77,7 +77,7 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
       </section>
       <p className="product-description text-base leading-7 text-stone-600 lg:col-span-2">{product.details || product.description}</p>
       <div className="workshop-strip">
-        <img loading="lazy" decoding="async" src={asset('web-ru-kiln-set.jpg')} alt="" />
+        <img loading="lazy" decoding="async" width={900} height={820} src={asset('web-ru-kiln-set.jpg')} alt="Керамический чайный сервиз для китайской чайной церемонии" />
       </div>
     </div>
   );
