@@ -1,11 +1,7 @@
 User-agent: *
-Disallow: /profile
-Disallow: /login
-Disallow: /register
-Disallow: /recover
-Disallow: /cart
-Disallow: /checkout
-Disallow: /favorites
-Disallow: /search
+Allow: /
+
+# Private pages are excluded with noindex and X-Robots-Tag headers.
+# Keep them crawlable so bots can read the removal directive.
 
 Sitemap: __SITE_URL__/sitemap.xml
