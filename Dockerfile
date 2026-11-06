@@ -23,12 +23,12 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run \
-    && touch /tmp/nginx.pid \
-    && chown nginx:nginx /tmp/nginx.pid
+RUN sed -i 's#/run/nginx.pid#/tmp/nginx.pid#' /etc/nginx/nginx.conf \
+    && chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run \
+    && chown nginx:nginx /tmp
 
 USER nginx
 
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off; pid /tmp/nginx.pid;"]
+CMD ["nginx", "-g", "daemon off;"]
