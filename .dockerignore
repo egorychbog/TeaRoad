@@ -3,6 +3,9 @@ node_modules
 dist
 .git
 .vercel
+deploy/certs
+deploy/.env
+*.pem
 
 .env
 .env.*
