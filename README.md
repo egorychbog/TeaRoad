@@ -23,6 +23,8 @@ docker compose ps
 
 The local site is served at `https://tearoad.localhost`. TLS certificates under `deploy/certs/` are local development files and are excluded from Git. See [deploy/README.md](deploy/README.md) for certificate setup, troubleshooting, and shutdown instructions.
 
+Project background notes and visual references are kept in [project-notes/](project-notes/README.md).
+
 ## GitHub Actions
 
 `.github/workflows/build.yml` builds the site and Docker images on pushes and pull requests. To enable the workflow, set repository variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_SITE_URL`. Pushes to `main` publish images to GHCR. The workflow does not deploy to a live server.
