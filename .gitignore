@@ -3,7 +3,7 @@ dist/
 .vercel/
 .env*
 !.env.example
-deploy/certs/
-deploy/.env
+certs/
+*.pem
 *.log
 .DS_Store

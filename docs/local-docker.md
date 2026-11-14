@@ -1,6 +1,6 @@
 # Практическое занятие №18: локальная репетиция деплоя TeaRoad
 
-Проект разворачивается только на этом компьютере по адресу `https://tearoad.localhost`. Публичный Vercel-домен и интернет-деплой не используются.
+Локальный Docker-стенд открывается по адресу `https://tearoad.localhost`. Frontend также развёрнут на Vercel; backend Compose берёт из отдельного репозитория `egorychbog/deploy`.
 
 ## Архитектура
 
@@ -12,7 +12,7 @@
 Браузер также обращается к Supabase по HTTPS для авторизации и основного каталога.
 ```
 
-Проект содержит отдельный Node.js backend API. Он предоставляет `/api/health` и демонстрационный каталог `/api/products`; frontend использует этот каталог, если Supabase не настроен или недоступен. Supabase остаётся внешним управляемым сервисом. Используй отдельный тестовый Supabase-проект, не production-базу.
+Backend находится в отдельном GitHub-репозитории `egorychbog/deploy`; Docker Compose загружает его как Git build context. Он предоставляет `/api/health` и демонстрационный каталог `/api/products`. Frontend использует этот каталог, если Supabase не настроен или недоступен. Supabase остаётся внешним управляемым сервисом.
 
 | Сервис | Технология | Внутренний порт | Production-сервер |
 |---|---|---:|---|
@@ -25,7 +25,7 @@
 
 ## Переменные окружения
 
-Файл `deploy/.env` создаётся локально из `deploy/.env.example` и не коммитится.
+Файл `.env` создаётся в корне из `.env.example` и не коммитится.
 
 | Имя | Назначение |
 |---|---|
@@ -41,18 +41,18 @@
 3. Из корня репозитория создай сертификат для локального домена:
 
    ```powershell
-   New-Item -ItemType Directory -Force deploy/certs | Out-Null
-   mkcert -cert-file deploy/certs/tearoad.localhost.pem -key-file deploy/certs/tearoad.localhost-key.pem tearoad.localhost
+   New-Item -ItemType Directory -Force certs | Out-Null
+   mkcert -cert-file certs/tearoad.localhost.pem -key-file certs/tearoad.localhost-key.pem tearoad.localhost
    ```
 
 Корневой приватный ключ mkcert нельзя передавать или добавлять в репозиторий. Каталог сертификатов исключён из Git и Docker build context.
 
 ## Запуск
 
-Создай `deploy/.env` и вставь в него URL и publishable key **тестового** Supabase-проекта. Затем из корня репозитория выполни:
+Создай `.env` из `.env.example` и укажи URL и publishable key Supabase. Затем из корня репозитория выполни:
 
 ```powershell
-docker compose --env-file deploy/.env up --build -d
+docker compose up --build -d
 docker compose ps
 docker compose logs nginx
 docker compose logs frontend
@@ -63,12 +63,12 @@ docker compose logs frontend
 Остановить стенд:
 
 ```powershell
-docker compose --env-file deploy/.env down
+docker compose down
 ```
 
 ## Скриншоты отчёта
 
-Сохрани фактические скриншоты в `deploy/screenshots/`:
+Сохрани фактические скриншоты в `docs/screenshots/`:
 
 - `compose-ps.png` — вывод `docker compose ps` со статусом обоих сервисов;
 - `https-localhost.png` — TeaRoad в Chrome/Edge на `https://tearoad.localhost` с защищённым соединением;

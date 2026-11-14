@@ -7,4 +7,4 @@ This folder contains project context and visual reference material. These files 
 - [figma-pages/](figma-pages/): exported design reference pages.
 - [screenshots/](screenshots/): screenshots that were previously loose files in the project root.
 
-Operational Docker and local deployment instructions remain in [../deploy/README.md](../deploy/README.md). The GitHub remote `egorychbog/deploy` is the repository for the whole TeaRoad project, including its `deploy/` folder.
+Operational Docker instructions are in [../docs/local-docker.md](../docs/local-docker.md). The frontend lives in `egorychbog/TeaRoad`; its backend is maintained separately in `egorychbog/deploy` and loaded by Docker Compose from that repository.
