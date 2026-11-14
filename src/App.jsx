@@ -28,7 +28,7 @@ function App() {
   const {
     menuOpen, setMenuOpen, query, setQuery, cart, products, productsLoading,
     productsError, session, authLoading, profile, profileLoading, profileError,
-    favorites, orders, orderError, filteredProducts, favoriteProducts, cartCount,
+    favorites, orders, orderError, filteredProducts, favoriteProducts,
     addToCart, changeQuantity, applyPromo, saveProfile, signOut, submitOrder, toggleFavorite,
   } = useShopState(navigate);
 

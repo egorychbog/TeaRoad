@@ -1,4 +1,3 @@
-import { asset } from '../data/siteContent.js';
 import { money } from '../lib/cartHelpers.js';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -62,7 +61,6 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
         <p className="text-base leading-7 text-stone-600">{product.description}</p>
         <strong className="product-price block text-3xl font-bold tracking-tight text-emerald-950">{money(product.price)}</strong>
         <span className="stock">Всего 1 шт.</span>
-        <p className="product-meta">Мастерская: Тин Юйнян<br />Обжиг: дровяной.</p>
         <div className="product-actions flex flex-wrap gap-3">
           <button className="button dark" onClick={handleAdd}>
             {added ? 'Добавлено' : 'Добавить в корзину'}
@@ -77,9 +75,6 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
         </div>
       </section>
       <p className="product-description text-base leading-7 text-stone-600 lg:col-span-2">{product.details || product.description}</p>
-      <div className="workshop-strip">
-        <img loading="lazy" decoding="async" width={900} height={820} src={asset('web-ru-kiln-set.jpg')} alt="Керамический чайный сервиз для китайской чайной церемонии" />
-      </div>
     </div>
   );
 }
