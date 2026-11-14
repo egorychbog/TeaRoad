@@ -56,9 +56,26 @@ export function useShopState(navigate) {
     let cancelled = false;
 
     async function loadProducts() {
+      async function loadBackendProducts(errorMessage = '') {
+        try {
+          const response = await fetch('/api/products');
+          if (!response.ok) throw new Error(`Backend вернул HTTP ${response.status}`);
+          const payload = await response.json();
+          if (cancelled) return;
+          setProducts(payload.items ?? []);
+          setProductsError(errorMessage);
+        } catch (backendError) {
+          if (cancelled) return;
+          console.error('[Backend] Не удалось загрузить каталог:', backendError);
+          setProducts(fallbackProducts);
+          setProductsError(errorMessage || 'Backend недоступен. Показан резервный каталог.');
+        } finally {
+          if (!cancelled) setProductsLoading(false);
+        }
+      }
+
       if (!supabase) {
-        setProductsError('Supabase не настроен. Проверь .env и сборку.');
-        setProductsLoading(false);
+        await loadBackendProducts('Supabase не настроен. Показан каталог backend.');
         return;
       }
 
@@ -72,9 +89,7 @@ export function useShopState(navigate) {
 
       if (error) {
         console.error('[Supabase] Ошибка загрузки каталога:', error);
-        setProductsError(error.message);
-        setProducts([]);
-        setProductsLoading(false);
+        await loadBackendProducts(`Supabase недоступен. Показан каталог backend. (${error.message})`);
         return;
       }
 

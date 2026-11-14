@@ -6,20 +6,22 @@
 
 ```text
 Браузер
-  └─ HTTPS/HTTP → nginx (локальные порты 127.0.0.1:443 и 127.0.0.1:80)
-                    └─ HTTP → frontend (Nginx, production-сборка React/Vite, внутренний порт 8080)
-                               └─ браузер напрямую обращается к Supabase по HTTPS
+  └─ HTTPS/HTTP → nginx gateway (локальные порты 127.0.0.1:443 и 127.0.0.1:80)
+                    ├─ / и страницы → frontend (React production build, порт 8080)
+                    └─ /api/* → backend (Node.js API, порт 3000)
+Браузер также обращается к Supabase по HTTPS для авторизации и основного каталога.
 ```
 
-В проекте нет отдельного серверного API и локальной базы данных. Supabase — внешний управляемый сервис; браузер обращается к нему напрямую. Для репетиции используй отдельный тестовый Supabase-проект и тестовые данные. Не направляй локальный стенд на production-базу с реальными пользователями и заказами.
+Проект содержит отдельный Node.js backend API. Он предоставляет `/api/health` и демонстрационный каталог `/api/products`; frontend использует этот каталог, если Supabase не настроен или недоступен. Supabase остаётся внешним управляемым сервисом. Используй отдельный тестовый Supabase-проект, не production-базу.
 
 | Сервис | Технология | Внутренний порт | Production-сервер |
 |---|---|---:|---|
 | frontend | React 19, React Router 7, Vite/esbuild; production static build | 8080 | Nginx Alpine внутри контейнера |
+| backend | Node.js HTTP API (`/api/health`, `/api/products`) | 3000 | Node 22 Alpine |
 | nginx | Nginx reverse proxy, TLS termination, HTTP→HTTPS redirect | 8080/8443 | Nginx Alpine; единственный контейнер с опубликованными портами |
 | data/auth | Supabase managed PostgreSQL/Auth | внешний HTTPS endpoint | Supabase; не запускается в Docker Compose |
 
-Оба контейнера запускаются без root. Порты опубликованы только на loopback компьютера; сеть Compose изолирована. Входящий доступ из локальной сети и Интернета не открывается.
+Все три контейнера запускаются без root. Порты опубликованы только на loopback компьютера; сеть Compose изолирована. Входящий доступ из локальной сети и Интернета не открывается.
 
 ## Переменные окружения
 
