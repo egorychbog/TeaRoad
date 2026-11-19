@@ -1,13 +1,4 @@
 # TeaRoad
 
-TeaRoad is the React storefront frontend. Authentication and the primary catalog are provided by Supabase. The deployment repository is [egorychbog/deploy](https://github.com/egorychbog/deploy); it contains the Compose stack, nginx gateway configuration, and deployment instructions, and builds this frontend as the `app` container.
-
-## Local Docker deployment
-
-For local Docker deployment, follow the README in [egorychbog/deploy](https://github.com/egorychbog/deploy). It runs only the `app` and `nginx` containers; Supabase remains the managed database and authentication service.
-
-Project background notes and visual references are kept in [project-notes/](project-notes/README.md).
-
-## GitHub Actions
-
-`.github/workflows/build.yml` builds the frontend on pushes and pull requests. Set repository variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_SITE_URL` for frontend image builds.
+<img width="1277" height="163" alt="изображение" src="https://github.com/user-attachments/assets/a730433a-be58-4067-b6ed-45d1a65e81fb" />
+<img width="1861" height="921" alt="изображение" src="https://github.com/user-attachments/assets/09ea810f-d06e-43d9-bca5-44c460b10291" />
