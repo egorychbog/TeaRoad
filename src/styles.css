@@ -17,11 +17,11 @@
   --green: #5f9678;
   --green-dark: #173f31;
   --olive: #94a173;
-  --olive-dark: #6f824c;
-  --clay: #bf5b39;
+  --olive-dark: #4f6338;
+  --clay: #ae482c;
   --line: rgba(21, 34, 25, 0.22);
   --line-strong: rgba(23, 63, 49, 0.34);
-  --muted: #6c705f;
+  --muted: #515744;
   --white: #fffefa;
 }
 
@@ -325,10 +325,15 @@ p {
 
 .kicker {
   margin-bottom: 10px;
-  color: #b7bf78 !important;
+  color: #405a35 !important;
   font-size: 0.8rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.banner-copy .kicker,
+.production-band .kicker {
+  color: var(--cream-soft) !important;
 }
 
 .button-row,
@@ -825,16 +830,31 @@ p {
 }
 
 .carousel-dots button {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.carousel-dots button::before {
   width: 9px;
   height: 9px;
-  border: 0;
   border-radius: 50%;
-  background: rgba(255, 250, 240, 0.56);
+  background: rgba(255, 250, 240, 0.8);
+  content: '';
 }
 
 .carousel-dots .active {
+  width: 32px;
+}
+
+.carousel-dots .active::before {
   width: 26px;
-  border-radius: 999px;
+  height: 9px;
   background: var(--cream-soft);
 }
 

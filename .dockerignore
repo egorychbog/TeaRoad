@@ -5,6 +5,10 @@ dist
 .vercel
 certs
 *.pem
+chrome
+docs
+project-notes
+tools
 
 .env
 .env.*

@@ -48,7 +48,7 @@ function App() {
         />
         {menuOpen && <MobileNav close={() => setMenuOpen(false)} />}
         <main className="mx-auto w-full max-w-7xl">
-          <Suspense fallback={<div className="mx-auto max-w-xl px-4 py-16 text-center text-sm text-stone-500" role="status">Загружаем страницу…</div>}>
+          <Suspense fallback={<div className="mx-auto max-w-xl px-4 py-16 text-center text-sm text-stone-600" role="status">Загружаем страницу…</div>}>
           <Routes>
             <Route path="/" element={<Home home={fallbackHome} />} />
             <Route
@@ -76,7 +76,7 @@ function App() {
               path="/profile"
               element={
                 authLoading ? (
-                  <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-500 shadow-sm" role="status">Проверяем авторизацию...</div>
+                  <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-600 shadow-sm" role="status">Проверяем авторизацию...</div>
                 ) : !session?.user ? (
                   <div className="simple-page mx-auto w-full max-w-7xl space-y-5">
                     <BackLink to="/" label="На главную" />
@@ -88,7 +88,7 @@ function App() {
                     />
                   </div>
                 ) : profileLoading ? (
-                  <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-500 shadow-sm" role="status">Загружаем профиль...</div>
+                  <div className="mx-auto max-w-xl rounded-2xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-600 shadow-sm" role="status">Загружаем профиль...</div>
                 ) : profileError ? (
                   <div className="simple-page">
                     <EmptyState title="Не удалось загрузить профиль" text={profileError} action={<button className="button dark" onClick={() => window.location.reload()}>Повторить</button>} />

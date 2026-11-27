@@ -1,4 +1,6 @@
 
+import { useEffect } from 'react';
+
 const DEFAULT_SITE_URL = 'https://chai-path-complete.vercel.app';
 const SITE_URL = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
 
@@ -98,12 +100,24 @@ export function SeoMeta({ pathname = '/', products = [] }) {
   const canonical = `${SITE_URL}${path === '/' ? '/' : path}`;
   const image = `${SITE_URL}/assets/hero-tea.jpg`;
 
+  useEffect(() => {
+    let canonicalLink = document.head.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = canonical;
+    document.head.querySelectorAll('link[rel="canonical"]').forEach((link) => {
+      if (link !== canonicalLink) link.remove();
+    });
+  }, [canonical]);
+
   return (
     <>
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="robots" content={noIndex ? 'noindex, nofollow' : 'index, follow'} />
-      <link rel="canonical" href={canonical} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:type" content="website" />

@@ -99,7 +99,7 @@ export function Cart({ cart, changeQuantity, applyPromo }) {
               <img className="aspect-square w-full rounded-xl object-cover bg-stone-50" loading="lazy" decoding="async" width={800} height={800} src={item.product.image} alt={item.product.name} />
               <div className="min-w-0 py-1">
                 <h2 className="font-semibold text-stone-900">{item.product.name}</h2>
-                <p className="mt-2 text-xs text-stone-500">Количество</p>
+                <p className="mt-2 text-xs text-stone-600">Количество</p>
                 <div className="mt-1 inline-flex items-center gap-3 rounded-xl border border-stone-200 px-2 py-1">
                   <button className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-stone-100" type="button" aria-label="Уменьшить количество" onClick={() => changeQuantity(item.productId, item.quantity - 1)}><Minus size={14} /></button>
                   <span className="min-w-4 text-center text-sm font-semibold">{item.quantity}</span>
@@ -138,8 +138,8 @@ export function OrderSummary({ cart, applyPromo }) {
   }
 
   return (
-    <aside className="order-card h-fit rounded-2xl border border-stone-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
-      <h2 className="text-xl font-semibold tracking-tight text-stone-900">Ваш заказ</h2>
+    <aside className="order-card h-fit rounded-2xl border border-stone-200 p-5 shadow-sm lg:sticky lg:top-6">
+      <h2 className="text-xl font-semibold tracking-tight text-stone-50">Ваш заказ</h2>
       <form className="promo-form" onSubmit={handlePromo}>
         <label>
           Промокод

@@ -52,7 +52,7 @@ export function Product({ product, addToCart, isFavorite, toggleFavorite }) {
   return (
     <div className="product-page mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-2 lg:items-start">
       <BackLink to="/catalog" label="Вернуться в каталог" />
-      <p className="breadcrumbs mb-4 text-sm text-stone-500 lg:col-span-2">Каталог / {product.category} / Чайники</p>
+      <p className="breadcrumbs mb-4 text-sm text-stone-600 lg:col-span-2">Каталог / {product.category} / Чайники</p>
       <div className="product-photo aspect-square overflow-hidden rounded-3xl border border-stone-200 bg-white p-4 shadow-sm">
         <img className="h-full w-full object-contain" loading="eager" fetchPriority="high" decoding="async" width={900} height={900} src={product.image} alt={product.name} />
       </div>

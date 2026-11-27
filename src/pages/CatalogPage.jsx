@@ -47,7 +47,7 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
       <div className="page-title mb-6">
         <BackLink to="/" label="На главную" />
         <h1 className="text-3xl font-semibold tracking-tight text-stone-950 sm:text-4xl">Каталог</h1>
-        <p className="mt-2 text-sm text-stone-500">{loading ? 'Загрузка товаров...' : error ? 'Ошибка загрузки' : visibleProducts.length + ' из ' + products.length + ' товаров'}</p>
+        <p className="mt-2 text-sm text-stone-600">{loading ? 'Загрузка товаров...' : error ? 'Ошибка загрузки' : visibleProducts.length + ' из ' + products.length + ' товаров'}</p>
       </div>
       <aside className="filters self-start rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
         <h2 className="mb-4 text-lg font-semibold text-stone-900">Фильтры</h2>
@@ -60,7 +60,7 @@ export function Catalog({ products, addToCart, loading = false, error = '' }) {
         </div>
       </aside>
       <section className="catalog-content min-w-0">
-        <p className="sort-label mb-4 text-sm text-stone-500">Сортировка: По названию</p>
+        <p className="sort-label mb-4 text-sm text-stone-600">Сортировка: По названию</p>
         {loading ? (
           <p>Загружаем каталог из Supabase...</p>
         ) : error ? (

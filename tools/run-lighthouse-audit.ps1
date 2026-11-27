@@ -2,6 +2,7 @@
 param(
     [string]$BaseUrl = "https://tearoad.localhost",
     [string[]]$ProductSlug = @(),
+    [string[]]$BlockedUrlPattern = @(),
     [switch]$IncludePrivate
 )
 
@@ -68,6 +69,10 @@ function Invoke-LighthouseAudit {
             "--chrome-flags=--headless=new",
             "--locale=ru"
         )
+
+        foreach ($pattern in $BlockedUrlPattern) {
+            $lighthouseArgs += "--blocked-url-patterns=$pattern"
+        }
 
         & npx --yes lighthouse @lighthouseArgs
         if ($LASTEXITCODE -ne 0) {

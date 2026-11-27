@@ -1,0 +1,59 @@
+{
+  "measuredAt": "2026-11-27T10:47:02.233Z",
+  "browser": "Chrome/158.0.8127.37",
+  "viewport": "390x844 mobile emulation",
+  "method": "Chrome DevTools Protocol input events with PerformanceEventTiming, LargestContentfulPaint, and LayoutShift observers.",
+  "interpretation": "estimatedINPms is the slowest observed interaction in this short session; the sample is laboratory data, not CrUX field data.",
+  "routes": [
+    {
+      "url": "https://tearoad.localhost/product/ulun-honey-orchid",
+      "lcpMs": 676,
+      "cls": 0,
+      "actions": [
+        "Добавить товар в корзину",
+        "Добавить товар в избранное"
+      ],
+      "estimatedINPms": 104,
+      "interactionCount": 2,
+      "interactions": [
+        {
+          "event": "pointerdown",
+          "durationMs": 104,
+          "startTimeMs": 3268,
+          "processingMs": 0
+        },
+        {
+          "event": "pointerdown",
+          "durationMs": 16,
+          "startTimeMs": 4084,
+          "processingMs": 0
+        }
+      ]
+    },
+    {
+      "url": "https://tearoad.localhost/cart",
+      "lcpMs": 364,
+      "cls": 0,
+      "actions": [
+        "Увеличить количество в корзине",
+        "Уменьшить количество в корзине"
+      ],
+      "estimatedINPms": 16,
+      "interactionCount": 2,
+      "interactions": [
+        {
+          "event": "pointerdown",
+          "durationMs": 16,
+          "startTimeMs": 1329,
+          "processingMs": 0
+        },
+        {
+          "event": "pointerdown",
+          "durationMs": 16,
+          "startTimeMs": 2141,
+          "processingMs": 0
+        }
+      ]
+    }
+  ]
+}

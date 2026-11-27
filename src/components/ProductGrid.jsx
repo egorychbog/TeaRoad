@@ -23,7 +23,7 @@ export function ProductGrid({ products, addToCart, compact = false, headingLevel
           <div className="flex flex-1 flex-col gap-2 p-4">
             <span className="stock inline-flex w-fit rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">В наличии</span>
             <ProductHeading className="min-h-12 text-base font-semibold leading-6 text-stone-900">{product.name}</ProductHeading>
-            <p className="text-sm text-stone-500">{product.weight} · {product.category.toLowerCase()}</p>
+            <p className="text-sm text-stone-600">{product.weight} · {product.category.toLowerCase()}</p>
             <div className="price-row mt-auto flex items-center justify-between gap-3 pt-3">
             <strong className="text-lg font-bold tracking-tight text-emerald-950">{money(product.price)}</strong>
             <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-950 text-white transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2" type="button" onClick={() => handleAdd(product.id)} aria-label="Добавить в корзину">
