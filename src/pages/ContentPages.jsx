@@ -1,7 +1,7 @@
 import { heroImages } from '../data/siteContent.js';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AssetGuide, HeroBanner, BackLink, EmptyState } from '../components/SiteChrome.jsx';
+import { HeroBanner, BackLink, EmptyState } from '../components/SiteChrome.jsx';
 import { ProductGrid } from '../components/ProductGrid.jsx';
 
 
@@ -67,7 +67,6 @@ export function About({ about }) {
           {['Пуэр', 'Улун', 'Зеленый чай', 'Белый чай'].map((chip) => <Link to="/catalog" key={chip}>{chip}</Link>)}
         </div>
       </section>
-      <AssetGuide />
     </div>
   );
 }

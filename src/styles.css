@@ -57,8 +57,7 @@ a,
 .week-promo-card,
 .builder-card,
 .profile-stats a,
-.faq-list article,
-.asset-table article {
+.faq-list article {
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
@@ -399,16 +398,14 @@ p {
 .gift-card:hover,
 .promo-card:hover,
 .about-grid article:hover,
-.profile-stats a:hover,
-.asset-table article:hover {
+.profile-stats a:hover {
   transform: translateY(-2px);
 }
 
 .product-card:hover,
 .gift-card:hover,
 .promo-card:hover,
-.about-grid article:hover,
-.asset-table article:hover {
+.about-grid article:hover {
   box-shadow: 0 16px 34px rgba(23, 63, 49, 0.16);
 }
 
@@ -714,48 +711,6 @@ p {
   overflow: hidden;
   margin: 0;
   padding: 0 18px 18px;
-}
-
-.asset-guide {
-  padding: 28px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--white);
-}
-
-.asset-table {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.asset-table article {
-  display: grid;
-  gap: 6px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #fffaf0;
-}
-
-.asset-table strong {
-  color: var(--green-dark);
-}
-
-.asset-table span {
-  width: fit-content;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--green-dark);
-  color: var(--cream-soft);
-  font-size: 0.82rem;
-  font-weight: 900;
-}
-
-.asset-table p,
-.asset-table small {
-  margin: 0;
-  color: var(--muted);
 }
 
 .carousel-section {
@@ -1966,7 +1921,6 @@ p {
   .gift-grid,
   .promo-grid,
   .about-grid,
-  .asset-table,
   .week-promo-grid,
   .builder-grid,
   .production-band,
