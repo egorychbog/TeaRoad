@@ -26,7 +26,7 @@ export function ProductGrid({ products, addToCart, compact = false, headingLevel
             <p className="text-sm text-stone-500">{product.weight} · {product.category.toLowerCase()}</p>
             <div className="price-row mt-auto flex items-center justify-between gap-3 pt-3">
             <strong className="text-lg font-bold tracking-tight text-emerald-950">{money(product.price)}</strong>
-            <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-950 text-white transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2" type="button" onClick={() => handleAdd(product.id)} aria-label="Добавить в корзину">
+            <button className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-950 text-white transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2" type="button" onClick={() => handleAdd(product.id)} aria-label={addedId === product.id ? `${product.name} добавлен в корзину` : `Добавить товар ${product.name} в корзину`}>
               {addedId === product.id ? '✓' : <ShoppingCart size={17} />}
             </button>
           </div>
