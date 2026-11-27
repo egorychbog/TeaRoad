@@ -61,6 +61,8 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
           className="min-w-0 w-full bg-transparent text-sm outline-none placeholder:text-stone-400"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          aria-label="Поиск по каталогу"
+          type="search"
           placeholder="Найти чай, посуду, подарок..."
         />
       </label>
@@ -87,6 +89,8 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
         type="button"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label="Меню"
+        aria-expanded={menuOpen}
+        aria-controls="mobile-navigation"
       >
         {menuOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
@@ -96,7 +100,7 @@ export function Header({ menuOpen, setMenuOpen, query, setQuery, cartCount, favo
 
 export function MobileNav({ close }) {
   return (
-    <nav className="mobile-nav fixed inset-x-4 top-24 z-50 grid gap-1 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl xl:hidden">
+    <nav id="mobile-navigation" className="mobile-nav fixed inset-x-4 top-24 z-50 grid gap-1 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl xl:hidden" aria-label="Мобильная навигация">
       {[
         ['/', 'Главная'],
         ['/catalog', 'Каталог'],
